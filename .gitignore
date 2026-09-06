@@ -1,0 +1,18 @@
+# ROS 2 Workspace Build Directories
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C++ / OS generated files
+.DS_Store
+.vscode/
+*.o
+*.out
+*.swp
+*~
