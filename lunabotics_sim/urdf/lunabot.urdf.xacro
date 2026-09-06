@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<robot name="lunabot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ===================== Parameters ===================== -->
+  <!-- Placeholder dimensions only — swap in real Lunabotics chassis/wheel
+       geometry once the mechanical design is locked. -->
+  <xacro:property name="chassis_length" value="0.6"/>
+  <xacro:property name="chassis_width"  value="0.5"/>
+  <xacro:property name="chassis_height" value="0.2"/>
+  <xacro:property name="chassis_mass"   value="15.0"/>
+
+  <xacro:property name="wheel_radius" value="0.12"/>
+  <xacro:property name="wheel_width"  value="0.06"/>
+  <xacro:property name="wheel_mass"   value="1.5"/>
+
+  <!-- Wheel centers set slightly outside the chassis footprint, at a height
+       so the wheel radius reaches the ground when chassis origin sits at
+       wheel_radius above ground. -->
+  <xacro:property name="wheel_x_offset" value="${chassis_length/2 - 0.05}"/>
+  <xacro:property name="wheel_y_offset" value="${chassis_width/2 + wheel_width/2}"/>
+  <xacro:property name="wheel_z_offset" value="0.0"/>
+
+  <material name="chassis_grey">
+    <color rgba="0.6 0.6 0.6 1.0"/>
+  </material>
+  <material name="wheel_black">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+
+  <!-- ===================== Macros ===================== -->
+
+  <xacro:macro name="box_inertia" params="mass x y z">
+    <inertia
+      ixx="${(1/12) * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0"
+      iyy="${(1/12) * mass * (x*x + z*z)}" iyz="0.0"
+      izz="${(1/12) * mass * (x*x + y*y)}"/>
+  </xacro:macro>
+
+  <xacro:macro name="cylinder_inertia" params="mass r h">
+    <inertia
+      ixx="${(1/12) * mass * (3*r*r + h*h)}" ixy="0.0" ixz="0.0"
+      iyy="${(1/12) * mass * (3*r*r + h*h)}" iyz="0.0"
+      izz="${0.5 * mass * r * r}"/>
+  </xacro:macro>
+
+  <xacro:macro name="wheel" params="prefix x_reflect y_reflect">
+    <link name="${prefix}_wheel_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+        <material name="wheel_black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <xacro:cylinder_inertia mass="${wheel_mass}" r="${wheel_radius}" h="${wheel_width}"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="chassis_link"/>
+      <child link="${prefix}_wheel_link"/>
+      <origin xyz="${x_reflect*wheel_x_offset} ${y_reflect*wheel_y_offset} ${wheel_z_offset}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- ===================== Base / chassis ===================== -->
+
+  <link name="base_link"/>
+
+  <joint name="base_to_chassis" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis_link"/>
+    <!-- chassis origin sits one wheel-radius above base_link so wheels touch ground -->
+    <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="chassis_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+      <material name="chassis_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="${chassis_mass}"/>
+      <xacro:box_inertia mass="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}"/>
+    </inertial>
+  </link>
+
+  <!-- ===================== Wheels (free-rolling, no drivetrain) ===================== -->
+  <!-- continuous joints only — nothing commands them yet. Drivetrain plugin
+       (diff-drive/skid-steer) is a later pass. -->
+
+  <xacro:wheel prefix="front_left"  x_reflect="1"  y_reflect="1"/>
+  <xacro:wheel prefix="front_right" x_reflect="1"  y_reflect="-1"/>
+  <xacro:wheel prefix="rear_left"   x_reflect="-1" y_reflect="1"/>
+  <xacro:wheel prefix="rear_right"  x_reflect="-1" y_reflect="-1"/>
+
+  <!-- ===================== Gazebo plugins ===================== -->
+  <!-- Joint-state publishing only (so /joint_states is available) —
+       explicitly no drivetrain/control plugin and no teleop in this pass. -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+      <joint_name>front_left_wheel_joint</joint_name>
+      <joint_name>front_right_wheel_joint</joint_name>
+      <joint_name>rear_left_wheel_joint</joint_name>
+      <joint_name>rear_right_wheel_joint</joint_name>
+    </plugin>
+  </gazebo>
+
+</robot>

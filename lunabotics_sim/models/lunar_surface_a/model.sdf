@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+
+<model name='lunar_surface'>
+      <static>true</static>
+      <link name='lunar_surface_base'>
+        <visual name='lunar_surface'>
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>model://lunar_surface_a/meshes/lunar_surface.dae</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='lunar_surface_collision'>
+          <!-- Box collision approximating the terrain mesh footprint (measured from
+               the STL bounding box: dartsim does not support raw triangle-mesh
+               collision from SDF, so a primitive shape is required here). -->
+          <pose>0.0085 0.0061 -0.178 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>9.16 8.14 0.356</size>
+            </box>
+          </geometry>
+            <surface>
+                <friction>
+                    <ode>
+                        <mu>0.4</mu>
+                        <mu2>0.4</mu2>
+                    </ode>
+                </friction>
+            </surface> 
+            <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+        </collision>
+      </link>
+    </model>
+</sdf>

@@ -1,0 +1,190 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+    <model name='artemis_arena'>
+
+        <static>true</static>
+
+        <!-- Lunar surface model-->
+        <include>
+            <name>lunar_floor</name>
+            <uri>model://lunar_surface_a</uri>
+            <pose>0 0 0 0 0 0</pose>
+        </include>
+
+        <!-- Artemis arena columns -->
+        <link name='columns'>
+            <pose>0 0 1.248 0 0 0</pose>
+            <visual name='columns_visual'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_columns.dae</uri>
+                    </mesh>
+                </geometry>
+                <material>
+                    <ambient>0.6 0.26 0 1</ambient>
+                    <diffuse>1 0.52 0 1</diffuse>
+                    <specular>0.18 0.18 0.18 1</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material>
+            </visual>
+
+            <collision name='columns_collision'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_columns.stl</uri>
+                    </mesh>
+                </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>0.8</mu>
+                            <mu2>0.8</mu2>
+                        </ode>
+                    </friction>
+                </surface> 
+                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+            </collision>
+        </link>
+
+        <!-- Artemis arena pipe -->
+        <link name='pipe'>
+            <pose>0 0 1.248 0 0 0</pose>
+            <visual name='pipe_visual'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_pipe.dae</uri>
+                    </mesh>
+                </geometry>
+                <material>
+                    <ambient>0.6 0.26 0 1</ambient>
+                    <diffuse>1 0.52 0 1</diffuse>
+                    <specular>0.18 0.18 0.18 1</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material>
+            </visual>
+
+            <collision name='pipe_collision'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_pipe.stl</uri>
+                    </mesh>
+                </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>0.8</mu>
+                            <mu2>0.8</mu2>
+                        </ode>
+                    </friction>
+                </surface> 
+                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+            </collision>
+        </link>
+
+        <!-- Artemis arena walls -->
+        <link name='walls'>
+            <pose>0 0 1.248 0 0 0</pose>
+            <visual name='walls_visual'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_walls.dae</uri>
+                    </mesh>
+                </geometry>
+                <material>
+                    <ambient>0.6 0.26 0 1</ambient>
+                    <diffuse>1 0.52 0 1</diffuse>
+                    <specular>0.18 0.18 0.18 1</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material>
+            </visual>
+
+            <collision name='walls_collision'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_walls.stl</uri>
+                    </mesh>
+                </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>0.8</mu>
+                            <mu2>0.8</mu2>
+                        </ode>
+                    </friction>
+                </surface> 
+                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+            </collision>
+        </link>
+
+        <!-- Artemis arena window frames -->
+        <link name='window_frames'>
+            <pose>0 0 1.248 0 0 0</pose>
+            <visual name='window_frames_visual'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_window_frames.dae</uri>
+                    </mesh>
+                </geometry>
+                <material>
+                    <ambient>0.6 0.26 0 1</ambient>
+                    <diffuse>1 0.52 0 1</diffuse>
+                    <specular>0.18 0.18 0.18 1</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material>
+            </visual>
+
+            <collision name='window_frames_collision'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_window_frames.stl</uri>
+                    </mesh>
+                </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>0.8</mu>
+                            <mu2>0.8</mu2>
+                        </ode>
+                    </friction>
+                </surface> 
+                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+            </collision>
+        </link>
+
+        <!-- Artemis arena windows -->
+        <link name='windows'>
+            <pose>0 0 1.248 0 0 0</pose>
+            <visual name='windows_visual'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_windows.dae</uri>
+                    </mesh>
+                </geometry>
+                <material>
+                    <ambient>0.6 0.26 0 1</ambient>
+                    <diffuse>1 0.52 0 1</diffuse>
+                    <specular>0.18 0.18 0.18 1</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material>
+            </visual>
+
+            <collision name='windows_collision'>
+                <geometry>
+                    <mesh>
+                        <uri>model://artemis_arena/meshes/arena_windows.stl</uri>
+                    </mesh>
+                </geometry>
+                <surface>
+                    <friction>
+                        <ode>
+                            <mu>0.8</mu>
+                            <mu2>0.8</mu2>
+                        </ode>
+                    </friction>
+                </surface> 
+                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+            </collision>
+        </link>
+
+    </model>
+</sdf>

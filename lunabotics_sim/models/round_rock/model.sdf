@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+    <model name="round_rock">
+        <!--pose relative to placement in world-->
+        <pose>0 0 0 0 0 0</pose>
+
+        <static>true</static>
+
+        <link name="link">
+
+            <!-- visual model-->
+            <visual name="visual">
+                <geometry>
+                    <mesh>
+                        <uri>model://round_rock/meshes/rock_round.dae</uri>
+                    </mesh>
+                </geometry>
+                
+                <material> <!-- mid-grey material-->
+                    <ambient>0.8 0.8 0.8 1</ambient>
+                    <diffuse>0.8 0.8 0.8 1</diffuse>
+                    <specular>0.8 0.8 0.8 1</specular>
+                </material>
+            </visual>
+
+            <!-- collision geometry-->
+            <collision name="collision">
+                <geometry>
+                    <mesh>
+                        <uri>model://round_rock/meshes/rock_round.stl</uri>
+                    </mesh>
+                </geometry>
+                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
+            </collision>
+
+            <inertial>
+                <mass>1</mass>
+                <inertia>
+                <ixx>0.0002</ixx>
+                <iyy>0.0002</iyy>
+                <izz>0.0002</izz>
+                </inertia>
+            </inertial>
+        </link>
+    </model>
+</sdf>
