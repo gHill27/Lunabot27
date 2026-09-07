@@ -26,19 +26,11 @@
             <!-- collision geometry-->
             <collision name="collision">
                 <geometry>
-                    <mesh>
-                        <uri>model://rough_rock/meshes/rock_rough.stl</uri>
-                    </mesh>
+                    <!-- Replaced complex .stl mesh with a simple primitive -->
+                    <sphere>
+                        <radius>0.2</radius> 
+                    </sphere>
                 </geometry>
-                <surface>
-                    <friction>
-                        <ode>
-                            <mu>1.5</mu>
-                            <mu2>1.5</mu2>
-                        </ode>
-                    </friction>
-                </surface> 
-                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
             </collision>
 
             <inertial>

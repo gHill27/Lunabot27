@@ -129,13 +129,13 @@
     <!-- QR Code Tags (Pulled safely inside) -->
     <include>
       <name>tag_917_840</name>
-      <pose>-4.0 4.0 1.25  1.5708 0 0</pose>
+      <pose>4.05 -1.0 1.25  1.5708 0 -1.5708</pose>
       <uri>model://tag_917_840</uri>
     </include>
 
     <include>
       <name>tag_733_669</name>
-      <pose>-3.5 4.5 1.25  1.5708 0 1.5708</pose>
+      <pose>2.5 -2.65 1.25  1.5708 0 3.14159</pose>
       <uri>model://tag_733_669</uri>
     </include>
 

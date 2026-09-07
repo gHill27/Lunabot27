@@ -25,9 +25,10 @@
             <!-- collision geometry-->
             <collision name="collision">
                 <geometry>
-                    <mesh>
-                        <uri>model://rock_c/meshes/Rock_C.stl</uri>
-                    </mesh>
+                    <!-- Replaced complex .stl mesh with a simple primitive -->
+                    <sphere>
+                        <radius>0.2</radius> 
+                    </sphere>
                 </geometry>
             </collision>
 
