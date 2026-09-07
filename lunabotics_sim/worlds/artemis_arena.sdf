@@ -32,10 +32,6 @@
       name="gz::sim::systems::Contact">
     </plugin>
 
-    <!-- <include> 
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
-    </include> -->
-
     <include>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun</uri>
     </include>
@@ -54,9 +50,9 @@
 
     <physics type="ode">
       <real_time_update_rate>1000.0</real_time_update_rate>
-      <max_step_size>0.01</max_step_size> <!-- also changed to prevent lag-->
+      <max_step_size>0.01</max_step_size>
       <real_time_factor>1</real_time_factor>
-      <max_contacts>100</max_contacts> <!--in order to prevent serious lag-->
+      <max_contacts>100</max_contacts>
       <ode>
         <solver>
           <type>quick</type>
@@ -74,71 +70,72 @@
       </ode>
     </physics>
 
-    <!--Models go here-->
+    <!-- Arena Structure -->
     <include>
         <uri>model://artemis_arena</uri>
         <pose>0 0 0 0 0 0</pose>
     </include>
 
-    <!-- Round Rocks -->
+    <!-- Round Rocks (Buffered inward from walls) -->
     <include>
       <name>round_rock_1</name>
-      <pose>-3.38496 -0.017282 0.3 0 0 0.846674</pose>
+      <pose>-2.0 -0.017282 0.05 0 0 0.846674</pose>
       <uri>model://round_rock</uri>
     </include>
 
     <include>
       <name>round_rock_2</name>
-      <pose>-3.54076 -3.02333 0.3 0 0 0.846674</pose>
+      <pose>-2.2 -1.5 0.05 0 0 0.846674</pose>
       <uri>model://round_rock</uri>
     </include>
 
     <include>
       <name>round_rock_3</name>
-      <pose>3.45882 -3.05383 0.3 0 0 0.846674</pose>
+      <pose>2.4 -2.2 0.05 0 0 0.846674</pose>
       <uri>model://round_rock</uri>
     </include>
     
-    <!-- Rough Rocks -->
+    <!-- Rough Rocks (Buffered inward from walls) -->
     <include>
       <name>rough_rock_1</name>
-      <pose>-2.13309 1.26296 0.25 0.002665 -0.015178 -2.17369</pose>
+      <pose>-1.5 1.0 0.05 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
     <include>
       <name>rough_rock_2</name>
-      <pose>-1.19102 -0.009563 0.25 0.002665 -0.015178 -2.17369</pose>
+      <pose>-1.0 -0.8 0.05 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
     <include>
       <name>rough_rock_3</name>
-      <pose>3.71773 0.333957 0.25 0.002665 -0.015178 -2.17369</pose>
+      <pose>1.8 0.333957 0.05 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
     <include>
       <name>rough_rock_4</name>
-      <pose>1.61448 2.48544 0.25 0.002665 -0.015178 -2.17369</pose>
+      <pose>1.2 1.5 0.05 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
     <include>
       <name>rough_rock_5</name>
-      <pose>0.912668 1.16155 0.25 0.002665 -0.015178 -2.17369</pose>
+      <pose>0.5 0.8 0.05 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
+    <!-- QR Code Tags (Pulled safely inside) -->
     <include>
       <name>tag_917_840</name>
-      <pose>-3.75 4.25 1.25 1.5708 0 0</pose>
+      <pose>-4.0 4.0 1.25  1.5708 0 0</pose>
       <uri>model://tag_917_840</uri>
     </include>
 
     <include>
       <name>tag_733_669</name>
-      <pose>-4.75 2.75 1.25 1.5708 0 1.5708</pose>
+      <pose>-3.5 4.5 1.25  1.5708 0 1.5708</pose>
       <uri>model://tag_733_669</uri>
     </include>
 

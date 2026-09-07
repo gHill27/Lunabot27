@@ -4,7 +4,7 @@
         <!--pose relative to placement in world-->
         <pose>0 0 0 0 0 0</pose>
 
-        <static>true</static>
+        <static>false</static>
 
         <link name="rock">
 

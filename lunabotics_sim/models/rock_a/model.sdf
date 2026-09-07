@@ -1,10 +1,9 @@
 <?xml version="1.0" ?>
 <sdf version="1.7">
     <model name="rock_a">
-        <!--pose relative to placement in world-->
-        <pose>0.0085 0.0061 0.452 0 0 0</pose>
+        <pose>0 0 0 0 0 0</pose>
 
-        <static>true</static>
+        <static>false</static>
 
         <link name="rock">
 
@@ -26,9 +25,10 @@
             <!-- collision geometry-->
             <collision name="collision">
                 <geometry>
-                    <mesh>
-                        <uri>model://rock_a/meshes/Rock_A.stl</uri>
-                    </mesh>
+                    <!-- Replaced complex .stl mesh with a simple primitive -->
+                    <sphere>
+                        <radius>0.19</radius> 
+                    </sphere>
                 </geometry>
             </collision>
 
