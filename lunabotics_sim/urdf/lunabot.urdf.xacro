@@ -112,6 +112,77 @@
   <xacro:wheel prefix="rear_left"   x_reflect="-1" y_reflect="1"/>
   <xacro:wheel prefix="rear_right"  x_reflect="-1" y_reflect="-1"/>
 
+  <!-- ===================== RGB-D Camera (RealSense-style) ===================== -->
+  <!-- Mounted top-middle of the chassis, facing forward (+X), simulating a
+       RealSense D435-style depth camera: RGB image + depth image + point
+       cloud, all published together. -->
+  <xacro:property name="camera_mount_height" value="0.02"/>
+
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.025 0.09 0.025"/>
+      </geometry>
+      <material name="wheel_black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.025 0.09 0.025"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.072"/>
+      <xacro:box_inertia mass="0.072" x="0.025" y="0.09" z="0.025"/>
+    </inertial>
+  </link>
+
+  <joint name="chassis_to_camera" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="camera_link"/>
+    <!-- top-middle of chassis, facing forward -->
+    <origin xyz="0 0 ${chassis_height/2 + camera_mount_height}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Optical frame: camera/ROS convention (Z-forward, X-right, Y-down) is
+       rotated relative to the link's URDF convention (X-forward, Z-up). -->
+  <link name="camera_optical_link"/>
+
+  <joint name="camera_to_optical" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_optical_link"/>
+    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+  </joint>
+
+  <gazebo reference="camera_link">
+    <sensor name="realsense_depth_camera" type="rgbd_camera">
+      <always_on>true</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <topic>camera</topic>
+      <camera>
+        <optical_frame_id>camera_optical_link</optical_frame_id>
+        <horizontal_fov>1.211</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>50</far>
+        </clip>
+        <depth_camera>
+          <clip>
+            <near>0.1</near>
+            <far>10.0</far>
+          </clip>
+        </depth_camera>
+      </camera>
+    </sensor>
+  </gazebo>
+
   <!-- ===================== Gazebo plugins ===================== -->
   <!-- Joint-state publishing (so /joint_states is available) plus a
        DiffDrive system plugin so the wheels actually respond to velocity

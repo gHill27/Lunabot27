@@ -11,8 +11,16 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-install(
-  DIRECTORY launch worlds models urdf
+install(PROGRAMS
+  scripts/collect_camera_images.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  launch
+  worlds
+  models
+  urdf
   DESTINATION share/${PROJECT_NAME}
 )
 
