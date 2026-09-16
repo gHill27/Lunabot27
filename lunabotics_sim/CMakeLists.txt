@@ -7,12 +7,40 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+add_executable(rock_crater_detector_node
+  src/rock_crater_detector_node.cpp
+)
+
+target_include_directories(rock_crater_detector_node PRIVATE
+  include
+  ${EIGEN3_INCLUDE_DIR}
+)
+
+ament_target_dependencies(rock_crater_detector_node
+  rclcpp
+  sensor_msgs
+  std_msgs
+  visualization_msgs
+  cv_bridge
+  OpenCV
+)
+
+install(TARGETS
+  rock_crater_detector_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(PROGRAMS
   scripts/collect_camera_images.py
+  scripts/live_camera_view.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

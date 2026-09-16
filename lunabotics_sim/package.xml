@@ -2,16 +2,34 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>lunabotics_sim</name>
-  <version>0.0.0</version>
-  <description>Simulation environment (arena worlds, obstacles, AprilTags) and placeholder robot description for WPI Lunabotics</description>
-  <maintainer email="kmherbstzuber@wpi.edu">kymadogg</maintainer>
+  <version>0.0.1</version>
+  <description>Simulation environment for the 2027 NASA Lunabotics challenge robot.</description>
+  <maintainer email="gjhill@wpi.edu">Gavin Hill</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <!-- C++ rock/crater detector node -->
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>eigen</depend>
+  <!-- OpenCV dev headers: the "opencv" rosdep key doesn't resolve
+       consistently across platforms, so install libopencv-dev directly:
+       sudo apt install libopencv-dev -->
+
+
+  <!-- Existing simulation dependencies -->
   <exec_depend>ros_gz_sim</exec_depend>
-  <exec_depend>xacro</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <!-- Python utility scripts (teleop, camera capture/view) -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
