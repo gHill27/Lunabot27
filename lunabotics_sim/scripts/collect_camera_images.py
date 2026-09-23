@@ -1,19 +1,4 @@
 #!/usr/bin/env python3
-"""
-Subscribes to the simulated RealSense-style camera and saves a frame
-(RGB + depth) to disk at a fixed interval, to demonstrate the sensor is
-actually producing usable data.
-
-Requires: cv_bridge, opencv-python (rosdep install / apt should cover
-cv_bridge; opencv-python via pip if not already present).
-
-Run with:
-    python3 collect_camera_images.py
-(after sourcing your ROS 2 workspace, with the sim already running)
-
-Images are saved to ./captured_images/ as:
-    rgb_0000.png, depth_0000.png, rgb_0001.png, depth_0001.png, ...
-"""
 
 import os
 

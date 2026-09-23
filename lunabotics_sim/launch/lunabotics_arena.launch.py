@@ -42,7 +42,7 @@ def generate_launch_description():
         arguments=[
             '-topic', '/robot_description',
             '-name', 'lunabot',
-            '-x', '2.5', '-y', '-1.5', '-z', '1.0',
+            '-x', '1.0', '-y', '-1.0', '-z', '1.0',
         ],
         output='screen',
     )

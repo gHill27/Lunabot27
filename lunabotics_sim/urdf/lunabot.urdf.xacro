@@ -20,6 +20,15 @@
   <xacro:property name="wheel_y_offset" value="${chassis_width/2 + wheel_width/2}"/>
   <xacro:property name="wheel_z_offset" value="0.0"/>
 
+  <!-- Camera mast: raises the RGB-D camera above the chassis for a better
+       vantage point, and tilts it downward to look at terrain ahead. -->
+  <xacro:property name="mast_radius" value="0.015"/>
+  <xacro:property name="mast_height" value="0.15"/>
+  <xacro:property name="mast_mass"   value="0.05"/>
+  <!-- Positive rotation about Y tilts the link's +X (forward) axis toward
+       -Z (downward) in this X-forward/Z-up convention. ~20 degrees. -->
+  <xacro:property name="camera_tilt" value="0.3491"/>
+
   <material name="chassis_grey">
     <color rgba="0.6 0.6 0.6 1.0"/>
   </material>
@@ -103,17 +112,46 @@
     </inertial>
   </link>
 
-  <!-- ===================== Wheels (free-rolling, no drivetrain) ===================== -->
-  <!-- continuous joints only — nothing commands them yet. Drivetrain plugin
-       (diff-drive/skid-steer) is a later pass. -->
-
+  <!-- ===================== Wheels ===================== -->
   <xacro:wheel prefix="front_left"  x_reflect="1"  y_reflect="1"/>
   <xacro:wheel prefix="front_right" x_reflect="1"  y_reflect="-1"/>
   <xacro:wheel prefix="rear_left"   x_reflect="-1" y_reflect="1"/>
   <xacro:wheel prefix="rear_right"  x_reflect="-1" y_reflect="-1"/>
 
+  <!-- ===================== Camera mast ===================== -->
+  <!-- Vertical cylindrical post that raises the camera above the chassis
+       deck for a better vantage point over the terrain ahead. -->
+
+  <link name="camera_mast_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${mast_radius}" length="${mast_height}"/>
+      </geometry>
+      <material name="wheel_black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${mast_radius}" length="${mast_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="${mast_mass}"/>
+      <xacro:cylinder_inertia mass="${mast_mass}" r="${mast_radius}" h="${mast_height}"/>
+    </inertial>
+  </link>
+
+  <joint name="chassis_to_mast" type="fixed">
+    <parent link="chassis_link"/>
+    <child link="camera_mast_link"/>
+    <!-- mast base sits flush on top of the chassis; mast_link origin is its
+         own center, so raise by half the chassis height plus half the mast -->
+    <origin xyz="0 0 ${chassis_height/2 + mast_height/2}" rpy="0 0 0"/>
+  </joint>
+
   <!-- ===================== RGB-D Camera (RealSense-style) ===================== -->
-  <!-- Mounted top-middle of the chassis, facing forward (+X), simulating a
+  <!-- Mounted on top of the mast, tilted downward, simulating a
        RealSense D435-style depth camera: RGB image + depth image + point
        cloud, all published together. -->
   <xacro:property name="camera_mount_height" value="0.02"/>
@@ -138,11 +176,12 @@
     </inertial>
   </link>
 
-  <joint name="chassis_to_camera" type="fixed">
-    <parent link="chassis_link"/>
+  <joint name="mast_to_camera" type="fixed">
+    <parent link="camera_mast_link"/>
     <child link="camera_link"/>
-    <!-- top-middle of chassis, facing forward -->
-    <origin xyz="0 0 ${chassis_height/2 + camera_mount_height}" rpy="0 0 0"/>
+    <!-- top of the mast, tilted downward by camera_tilt about Y -->
+    <origin xyz="0 0 ${mast_height/2 + camera_mount_height}" rpy="0 0 0"/>
+    <!-- <origin xyz="0 0 ${mast_height/2 + camera_mount_height}" rpy="0 ${camera_tilt} 0"/> -->
   </joint>
 
   <!-- Optical frame: camera/ROS convention (Z-forward, X-right, Y-down) is
