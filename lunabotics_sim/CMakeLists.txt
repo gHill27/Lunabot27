@@ -12,7 +12,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 install(PROGRAMS
-  scripts/collect_camera_images.py
+  scripts/live_camera_view.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
