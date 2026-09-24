@@ -1,5 +1,4 @@
 import os
-
 import xacro
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
@@ -66,6 +65,13 @@ def generate_launch_description():
         output='screen',
     )
 
+    fiducial_node = Node(
+        package='lunabotics_sim',
+        executable='fiducial.py',
+        name='fiducial_node',
+        output='screen',
+    )
+
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
     # scene setup) before spawning the robot.
     delayed_spawn = TimerAction(period=5.0, actions=[spawn_entity])
@@ -79,4 +85,5 @@ def generate_launch_description():
         robot_state_publisher,
         delayed_spawn,
         delayed_bridge,
+        fiducial_node
     ])
