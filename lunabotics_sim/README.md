@@ -37,7 +37,7 @@ parameterized into one launch file with a `world` argument, by preference.
 ```bash
 colcon build --symlink-install --packages-select lunabotics_sim
 source install/setup.bash
-ros2 launch lunabotics_sim spawn_lunabot.launch.py
+ros2 launch lunabotics_sim lunabotics_arena.launch.py
 ```
 
 To bring up just an arena without the robot:
@@ -57,14 +57,16 @@ ros2 launch lunabotics_sim artemis_arena.launch.py
   pulled live from `https://fuel.gazebosim.org`. If you need to run
   offline, set up a local Fuel cache beforehand.
 
-## Not done yet
+## 
+To run the fiducial tracking:
+'''bash
+ros2 run lunabotics_sim fiducial.py
+'''
 
-- No drivetrain/control (`cmd_vel` interface via diff-drive or skid-steer
-  plugin), no `ros_gz_bridge` wiring, no teleop.
-- No sensors (IMU, camera, LIDAR).
-- No navigation or excavation-mechanism stack.
-- Placeholder robot geometry — not real Lunabotics dimensions.
+Then in a seperate sourced terminal, run
 
-This package only proves the arena + robot spawn pipeline works; it's the
-foundation for the rest of the autonomy/mechanism stack, not a complete
-robot.
+'''bash
+ros2 run rqt_image_view rqt_image_view
+'''
+once the gui loads, change the topic in the top left to /fiducial_tracker/debug_image topic
+you should then see the aruco tag being recognized without moving the robot.
