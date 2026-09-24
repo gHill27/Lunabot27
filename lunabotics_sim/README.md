@@ -57,16 +57,3 @@ ros2 launch lunabotics_sim artemis_arena.launch.py
   pulled live from `https://fuel.gazebosim.org`. If you need to run
   offline, set up a local Fuel cache beforehand.
 
-## 
-To run the fiducial tracking:
-'''bash
-ros2 run lunabotics_sim fiducial.py
-'''
-
-Then in a seperate sourced terminal, run
-
-'''bash
-ros2 run rqt_image_view rqt_image_view
-'''
-once the gui loads, change the topic in the top left to /fiducial_tracker/debug_image topic
-you should then see the aruco tag being recognized without moving the robot.

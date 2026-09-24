@@ -57,3 +57,16 @@ This publishes `geometry_msgs/msg/Twist` messages on `/cmd_vel`, which the bridg
 ```bash
 ros2 topic echo /cmd_vel
 ```
+## 
+To run the fiducial tracking:
+'''bash
+ros2 run lunabotics_sim fiducial.py
+'''
+
+Then in a seperate sourced terminal, run
+
+'''bash
+ros2 run rqt_image_view rqt_image_view
+'''
+once the gui loads, change the topic in the top left to /fiducial_tracker/debug_image topic
+you should then see the aruco tag being recognized without moving the robot.
