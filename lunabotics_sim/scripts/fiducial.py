@@ -36,11 +36,6 @@ def main():
     node = FiducialTracker()
     try:
        rclpy.spin(node)
-        # while rclpy.ok():
-        #     rclpy.spin_once(node, timeout_sec=0.01)  # process one callback
-        #     if node.current_frame is not None:
-        #         cv2.imshow("ArUco Detection", node.current_frame)
-        #         cv2.waitKey(1)
     except KeyboardInterrupt:
         pass
     finally:
