@@ -13,6 +13,7 @@ find_package(ament_cmake REQUIRED)
 
 install(PROGRAMS
   scripts/live_camera_view.py
+  scripts/fiducial.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

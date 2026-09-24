@@ -4,7 +4,7 @@
   <name>lunabotics_sim</name>
   <version>0.0.0</version>
   <description>Simulation environment (arena worlds, obstacles, AprilTags) and placeholder robot description for WPI Lunabotics</description>
-  <maintainer email="kmherbstzuber@wpi.edu">kymadogg</maintainer>
+  <maintainer email="gjhill@wpi.edu"></maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
