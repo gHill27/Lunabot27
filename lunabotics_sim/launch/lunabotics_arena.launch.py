@@ -74,6 +74,12 @@ def generate_launch_description():
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
         ],
+        remappings=[
+            ('/camera/image', '/camera/camera/color/image_raw'),
+            ('/camera/camera_info', '/camera/camera/color/camera_info'),
+            # ('/camera/depth_image', '/camera/camera/depth/image_rect_raw'),
+            ('/camera/depth_image', '/camera/camera/depth/image_raw'),
+        ],
         output='screen',
         condition=IfCondition(use_sim)
     )
