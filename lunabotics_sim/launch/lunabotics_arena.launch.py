@@ -5,7 +5,7 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction, DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -24,6 +24,13 @@ def generate_launch_description():
         'use_realsense',
         default_value='false',
         description='Set to true to launch the RealSense hardware camera nodes'
+    )
+    
+    use_astra = LaunchConfiguration('use_astra')
+    use_astra_arg = DeclareLaunchArgument(
+        'use_astra',
+        default_value='false',
+        description='Set to true to launch the Astra hardware camera nodes'
     )
 
     # Bring up the default competition arena (artemis_arena) via the
@@ -110,6 +117,18 @@ def generate_launch_description():
             ])  # only run the real camera when NOT in sim
 
     ))
+    astra_launch = IncludeLaunchDescription(
+        AnyLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('astra_camera'), 'launch', 'astra.launch.xml'
+            ])
+        ),
+        condition=IfCondition(
+            PythonExpression([
+                "'", use_sim, "'.lower() == 'false' and '", use_astra, "'.lower() == 'true'"
+            ])
+        )
+    )
 
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
@@ -123,8 +142,10 @@ def generate_launch_description():
     return LaunchDescription([
         use_sim_arg,
         use_realsense_arg,
+        use_astra_arg,
         arena,
         realsense_launch,
+        astra_launch,
         robot_state_publisher,
         delayed_spawn,
         delayed_bridge,
