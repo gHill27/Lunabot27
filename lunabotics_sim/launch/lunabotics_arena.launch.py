@@ -1,14 +1,22 @@
 import os
-
 import xacro
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import IncludeLaunchDescription, TimerAction, DeclareLaunchArgument
+from launch.conditions import IfCondition, UnlessCondition
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    use_sim = LaunchConfiguration('use_sim')
+    use_sim_arg = DeclareLaunchArgument(
+        'use_sim',
+        default_value='false',
+        description='Set to true to launch Gazebo simulation instead of real hardware'
+    )
     pkg_path = get_package_share_directory('lunabotics_sim')
 
     # Bring up the default competition arena (artemis_arena) via the
@@ -17,7 +25,8 @@ def generate_launch_description():
     arena = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_path, 'launch', 'artemis_arena.launch.py')
-        )
+        ),
+        condition=IfCondition(use_sim),
     )
 
     # Process the xacro into a robot_description string.
@@ -31,6 +40,7 @@ def generate_launch_description():
         name='robot_state_publisher',
         output='screen',
         parameters=[robot_description],
+        condition=IfCondition(use_sim),
     )
 
     # Spawn a clear spot in artemis_arena, away from the rock clusters —
@@ -45,6 +55,7 @@ def generate_launch_description():
             '-x', '1.0', '-y', '-1.0', '-z', '1.0',
         ],
         output='screen',
+        condition=IfCondition(use_sim)
     )
 
     # Bridge /cmd_vel (ROS Twist) <-> Gazebo Transport, and /odom
@@ -64,6 +75,28 @@ def generate_launch_description():
             '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
         ],
         output='screen',
+        condition=IfCondition(use_sim)
+    )
+
+    fiducial_node = Node(
+        package='lunabotics_sim',
+        executable='fiducial.py',
+        name='fiducial_node',
+        output='screen',
+    )
+    realsense_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('realsense2_camera'), 'launch', 'rs_launch.py'
+            ])
+        ),
+        launch_arguments={
+            'enable_color': 'true',
+            'enable_depth': 'true',
+            'rgb_camera.color_profile': '640x480x30',
+            'depth_module.depth_profile': '640x480x30',
+        }.items(),
+        condition=UnlessCondition(use_sim)  # only run the real camera when NOT in sim
     )
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
@@ -76,7 +109,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         arena,
+        realsense_launch,
         robot_state_publisher,
         delayed_spawn,
         delayed_bridge,
+        fiducial_node,
     ])

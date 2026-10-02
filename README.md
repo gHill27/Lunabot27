@@ -59,11 +59,14 @@ ros2 topic echo /cmd_vel
 ```
 
 ## 
+<<<<<<< HEAD
 To run the fiducial tracking:
 ```bash
 ros2 run lunabotics_sim fiducial.py
 ```
 
+=======
+>>>>>>> fiducials
 Then in a seperate sourced terminal, run
 
 ```bash

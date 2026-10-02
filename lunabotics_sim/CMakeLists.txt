@@ -22,6 +22,7 @@ install(DIRECTORY
   worlds
   models
   urdf
+  scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
