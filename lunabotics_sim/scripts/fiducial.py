@@ -39,6 +39,13 @@ class FiducialTracker(Node):
             self.camera_info_callback,
             qos_profile_sensor_data
         )
+        self.create_subscription(Image, '/camera/color/image_raw', self.rgb_callback, 10) #only rgb to track the marker on astra cam
+        self.camera_info_sub = self.create_subscription(
+            CameraInfo,
+            '/camera/color/camera_info',
+            self.camera_info_callback,
+            qos_profile_sensor_data
+        )
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_5X5_1000) # our tag is either 733 or 669 so should easily be above 249 thus 1000 value dictionary is used. (idk which of the two values it is yet)
         self.aruco_params = cv2.aruco.DetectorParameters_create() #default for now 
 
@@ -48,10 +55,11 @@ class FiducialTracker(Node):
         self.dist_coeffs = np.array(msg.d)
     
     def rgb_callback(self, image:Image) -> None:
+        # self.get_logger().info("isrunning")
         cv_image = self.bridge.imgmsg_to_cv2(image, desired_encoding='bgr8')
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)
         if ids is not None:
-            # self.get_logger().inzfo(f'tag of id {ids} found')
+            self.get_logger().info(f'tag of id {ids} found')
             cv2.aruco.drawDetectedMarkers(cv_image,corners,ids)
         self.current_frame = cv_image.copy()
         self.debug_pub.publish(self.bridge.cv2_to_imgmsg(cv_image.copy(), encoding='bgr8'))

@@ -4,7 +4,7 @@ from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction, DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -18,6 +18,13 @@ def generate_launch_description():
         description='Set to true to launch Gazebo simulation instead of real hardware'
     )
     pkg_path = get_package_share_directory('lunabotics_sim')
+
+    use_realsense = LaunchConfiguration('use_realsense')
+    use_realsense_arg = DeclareLaunchArgument(
+        'use_realsense',
+        default_value='false',
+        description='Set to true to launch the RealSense hardware camera nodes'
+    )
 
     # Bring up the default competition arena (artemis_arena) via the
     # existing launch file — same GZ_SIM_RESOURCE_PATH setup as the
@@ -89,6 +96,7 @@ def generate_launch_description():
             PathJoinSubstitution([
                 FindPackageShare('realsense2_camera'), 'launch', 'rs_launch.py'
             ])
+            # condition=IfCondition(use_camera)
         ),
         launch_arguments={
             'enable_color': 'true',
@@ -96,8 +104,13 @@ def generate_launch_description():
             'rgb_camera.color_profile': '640x480x30',
             'depth_module.depth_profile': '640x480x30',
         }.items(),
-        condition=UnlessCondition(use_sim)  # only run the real camera when NOT in sim
-    )
+        condition=IfCondition(
+            PythonExpression([
+                "'", use_sim, "'.lower() == 'false' and '", use_realsense, "'.lower() == 'true'"
+            ])  # only run the real camera when NOT in sim
+
+    ))
+
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
     # scene setup) before spawning the robot.
@@ -108,6 +121,8 @@ def generate_launch_description():
     delayed_bridge = TimerAction(period=6.0, actions=[ros_gz_bridge])
 
     return LaunchDescription([
+        use_sim_arg,
+        use_realsense_arg,
         arena,
         realsense_launch,
         robot_state_publisher,
