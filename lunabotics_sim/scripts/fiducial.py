@@ -11,6 +11,29 @@ from sensor_msgs.msg import Image, CompressedImage, CameraInfo
 from cv_bridge import CvBridge
 from rclpy.qos import qos_profile_sensor_data
 
+class CannyEdgeDector(Node):
+    def __init__(self):
+        super().__init__('EdgeDetector')
+        self.bridge = CvBridge()
+        
+        #publisher: 
+        self.pub = self.create_publisher(Image,'/edge_detector/debug_image', 10)
+
+        #sub: 
+        self.create_subscription(Image, '/camera/image', self.rgb_callback, 10) #only rgb to track the marker
+        pass
+
+    def rgb_callback(self,msg:Image):
+        #take the image and convert to cv2
+        cv2image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
+        kernal = (5, 5)
+        blurred_image = cv2.GaussianBlur(cv2image, kernal, 0) #0 means calculate standard deviation automatically
+        edges = cv2.Canny(image=blurred_image, threshold1=100, threshold2=200)
+        self.pub.publish(self.bridge.cv2_to_imgmsg(edges.copy(), encoding='mono8'))
+
+
+
+
 #Fiducial tracker node
 class FiducialTracker(Node):
     def __init__(self):
@@ -33,12 +56,12 @@ class FiducialTracker(Node):
         self.camera_matrix = None # calibration matrix for the camera
         self.dist_coeffs = None # distortion coefficients for the camera
         self.create_subscription(Image, '/camera/image', self.rgb_callback, 10) #only rgb to track the marker
-        self.camera_info_sub = self.create_subscription(
-            CameraInfo,
-            '/camera/camera/color/camera_info',
-            self.camera_info_callback,
-            qos_profile_sensor_data
-        )
+        # self.camera_info_sub = self.create_subscription(
+        #     CameraInfo,
+        #     '/camera/camera/color/camera_info',
+        #     self.camera_info_callback,
+        #     qos_profile_sensor_data
+        # )
         self.create_subscription(Image, '/camera/color/image_raw', self.rgb_callback, 10) #only rgb to track the marker on astra cam
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
@@ -90,6 +113,7 @@ class FiducialTracker(Node):
 def main():
     rclpy.init()
     node = FiducialTracker()
+    node = CannyEdgeDector()
     try:
        rclpy.spin(node)
     except KeyboardInterrupt:

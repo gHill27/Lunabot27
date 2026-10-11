@@ -103,7 +103,7 @@ def generate_launch_description():
             PathJoinSubstitution([
                 FindPackageShare('realsense2_camera'), 'launch', 'rs_launch.py'
             ])
-            # condition=IfCondition(use_camera)
+            
         ),
         launch_arguments={
             'enable_color': 'true',
