@@ -2,7 +2,7 @@
 
 import os
 
-import cv2
+import cv2 # type : ignore
 import numpy
 import numpy as np
 import rclpy
@@ -33,9 +33,16 @@ class FiducialTracker(Node):
         self.camera_matrix = None # calibration matrix for the camera
         self.dist_coeffs = None # distortion coefficients for the camera
         self.create_subscription(Image, '/camera/image', self.rgb_callback, 10) #only rgb to track the marker
+        # self.camera_info_sub = self.create_subscription(
+        #     CameraInfo,
+        #     '/camera/camera/color/camera_info',
+        #     self.camera_info_callback,
+        #     qos_profile_sensor_data
+        # )
+        self.create_subscription(Image, '/camera/color/image_raw', self.rgb_callback, 10) #only rgb to track the marker on astra cam
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
-            '/camera/camera/color/camera_info',
+            '/camera/color/camera_info',
             self.camera_info_callback,
             qos_profile_sensor_data
         )
@@ -48,10 +55,11 @@ class FiducialTracker(Node):
         self.dist_coeffs = np.array(msg.d)
     
     def rgb_callback(self, image:Image) -> None:
+        # self.get_logger().info("isrunning")
         cv_image = self.bridge.imgmsg_to_cv2(image, desired_encoding='bgr8')
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)
         if ids is not None:
-            # self.get_logger().inzfo(f'tag of id {ids} found')
+            self.get_logger().info(f'tag of id {ids} found')
             cv2.aruco.drawDetectedMarkers(cv_image,corners,ids)
         self.current_frame = cv_image.copy()
         self.debug_pub.publish(self.bridge.cv2_to_imgmsg(cv_image.copy(), encoding='bgr8'))
