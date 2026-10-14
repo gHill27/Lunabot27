@@ -1,0 +1,13 @@
+{
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "standard",
+  "reportMissingTypeStubs": false,
+  "reportMissingModuleSource": false,
+  "reportAttributeAccessIssue": false,
+  "extraPaths": [
+    "/home/gavin-hill/cv-stubs/lib/python3.12/site-packages",
+    "/opt/ros/jazzy/lib/python3.12/site-packages",
+    "/opt/ros/jazzy/local/lib/python3.12/dist-packages",
+    "/home/gavin-hill/ros2_ws/venv/lib/python3.12/site-packages"
+  ]
+}

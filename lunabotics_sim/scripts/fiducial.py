@@ -2,8 +2,7 @@
 
 import os
 
-import cv2
-import numpy
+import cv2 # type : ignore
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -58,7 +57,7 @@ class FiducialTracker(Node):
 
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
-            '/camera/camera/color/camera_info',
+            '/camera/color/camera_info',
             self.camera_info_callback,
             qos_profile_sensor_data
         )
@@ -85,6 +84,7 @@ class FiducialTracker(Node):
         # self.get_logger().info(f'{self.camera_matrix}')
 
     def rgb_callback(self, image:Image) -> None:
+        # self.get_logger().info("isrunning")
         cv_image = self.bridge.imgmsg_to_cv2(image, desired_encoding='bgr8')
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.aruco_params)     
         if ids is not None:

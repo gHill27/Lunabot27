@@ -14,6 +14,8 @@ find_package(ament_cmake REQUIRED)
 install(PROGRAMS
   scripts/live_camera_view.py
   scripts/fiducial.py
+  scripts/CannyEdgeDetector.py
+  scripts/OrbDetector.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
