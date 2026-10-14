@@ -3,7 +3,6 @@
 import os
 
 import cv2 # type : ignore
-import numpy
 import numpy as np
 import rclpy
 from rclpy.node import Node
