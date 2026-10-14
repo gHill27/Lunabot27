@@ -92,12 +92,6 @@ def generate_launch_description():
         condition=IfCondition(use_sim)
     )
 
-    fiducial_node = Node(
-        package='lunabotics_sim',
-        executable='fiducial.py',
-        name='fiducial_node',
-        output='screen',
-    )
     realsense_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -130,6 +124,25 @@ def generate_launch_description():
         )
     )
 
+    fiducial_node = Node(
+        package='lunabotics_sim',
+        executable='fiducial.py',
+        name='fiducial_node',
+        output='screen',
+    )
+
+    canny_node = Node(
+        package='lunabotics_sim',
+        executable='CannyEdgeDetector.py',
+        name='canny_node',
+        output='screen',
+    )
+    orb_node = Node(
+        package='lunabotics_sim',
+        executable='OrbDetector.py',
+        name='orb_node',
+        output='screen',
+    )
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
     # scene setup) before spawning the robot.
@@ -149,5 +162,7 @@ def generate_launch_description():
         robot_state_publisher,
         delayed_spawn,
         delayed_bridge,
-        fiducial_node,
+        # fiducial_node,
+        orb_node,
+        # canny_node,
     ])
