@@ -48,13 +48,6 @@ class FiducialTracker(Node):
             qos_profile_sensor_data
         )
 
-        # self.create_subscription( #sim camera
-        #     Image,
-        #     '/camera/camera/color/image_raw',
-        #     self.rgb_callback,
-        #     10
-        # )  # only rgb to track the marker
-
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
             '/camera/color/camera_info',

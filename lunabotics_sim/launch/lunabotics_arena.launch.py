@@ -169,6 +169,6 @@ def generate_launch_description():
         delayed_spawn,
         delayed_bridge,
         # fiducial_node,
-        orb_node,
-        # canny_node,
+        # orb_node,
+        canny_node,
     ])

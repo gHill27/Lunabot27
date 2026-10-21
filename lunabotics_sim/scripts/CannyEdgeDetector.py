@@ -24,6 +24,7 @@ class CannyEdgeDector(Node):
 
     def rgb_callback(self,msg:Image):
         #take the image and convert to cv2
+        self.get_logger().info('got this image')
         cv2image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
         kernal = (5, 5)
         blurred_image = cv2.GaussianBlur(cv2image, kernal, 0) #0 means calculate standard deviation automatically
