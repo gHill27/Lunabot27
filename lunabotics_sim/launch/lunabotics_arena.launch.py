@@ -149,6 +149,21 @@ def generate_launch_description():
         name='orb_node',
         output='screen',
     )
+    depth_node = Node(
+        package='lunabotics_sim',
+        executable='Depth.py',
+        name='depth_node',
+        output='screen',
+    )
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        # arguments=['-d', rviz_config],
+        parameters=[{'use_sim_time': True}],   # remove if not using sim time
+        # condition=IfCondition(LaunchConfiguration('rviz')),
+        output='screen',
+    )
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
     # scene setup) before spawning the robot.
@@ -168,7 +183,9 @@ def generate_launch_description():
         robot_state_publisher,
         delayed_spawn,
         delayed_bridge,
+        depth_node,
+        rviz_node,
         # fiducial_node,
         # orb_node,
-        canny_node,
+        # canny_node,
     ])

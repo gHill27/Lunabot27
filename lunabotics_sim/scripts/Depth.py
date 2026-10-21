@@ -3,21 +3,44 @@
 import os
 import cv2 # type : ignore
 import cv_bridge
-import open3d as o3d
+import open3d as o3d #type: ignore
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image, CompressedImage, CameraInfo
+from sensor_msgs.msg import Image, CompressedImage, CameraInfo, PointCloud2
 from cv_bridge import CvBridge
-from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs_py import point_cloud2
+from rclpy.qos import qos_profile_sensor_data, ReliabilityPolicy, QoSProfile, HistoryPolicy
 
 class DepthMapper(Node):
+    """NOTE: REALSENSE CAMERA HAS A LOT OF THESE FEATURES IN THE SDK TO INVESTIGATE LATER ON REAL ROBOT!"""
+
     def __init__(self):
         super().__init__('depthMapper')
+        self.have_info = False
+        self.step = 2 # how much to fractionally reduce the amount of pixels in the point cloud 1/step so 4 is 1/4 the pixel amount
         self.bridge = CvBridge()
-        self.point_cloud = o3d.geometry.PointCloud()
+        viz_qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=5,
+        )
+        self.create_subscription(Image, '/camera/camera/depth/image_raw', self.depth_cb, qos_profile=qos_profile_sensor_data)
+
+
+        self.depth_filter_pub = self.create_publisher(Image ,'/depth_filtered', qos_profile=qos_profile_sensor_data)
+        # self.depth_filtered_image_pub = self.create_publisher(Image ,'/depth_filtered/viz', qos_profile=qos_profile_sensor_data)
+        self.pub_cloud= self.create_publisher(PointCloud2,'/depth_filtered/points', qos_profile=viz_qos)
+        self.create_subscription(CameraInfo, '/camera/camera/color/camera_info', self.info_cb, qos_profile_sensor_data)
+
+    def info_cb(self, msg):
+        self.fx, self.fy = msg.k[0], msg.k[4]
+        self.cx, self.cy = msg.k[2], msg.k[5]
+        self.have_info = True
 
     def depth_cb(self,msg:Image):
+        if not self.have_info:
+            return
         LAP_THRESHOLD = 10 #tune this later 
         depth = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
         # Start by filtering out noise:
@@ -28,55 +51,70 @@ class DepthMapper(Node):
         # Regions with no data
 
         #Mask NAN or 0 or -1 
-        depth = depth.astype(np.float16) #raw depth in m (from sim at least)
+        depth = depth.astype(np.float32) #raw depth in m (from sim at least)
         valid = (depth > 0) & (depth < 4.0) #mask + clip
         depth[~valid] = 0
 
         #Median Filter: take the median of the 5x5 to keep get rid of extreme noise  (spatial) 
-        median_depth = cv2.medianBlur(depth, 5)
+        median_depth = cv2.medianBlur(depth.astype(np.float32), 5)
 
         #Bilateral filter: (spatial, edge perserving)
         #this one is more involved: explain when i get here
+        filtered_depth = cv2.bilateralFilter(
+            median_depth.astype(np.float32),
+            d = 7, #neighborhood diameter in pixels
+            sigmaColor=0.05, #in meters
+            sigmaSpace=5 #in pixels
+
+        )
+        #pass the filtered depth for logic 
+        filtered_depth_msg = self.bridge.cv2_to_imgmsg(filtered_depth, encoding='32FC1')
+        filtered_depth_msg.header = msg.header
+        self.depth_filter_pub.publish(filtered_depth_msg)
+
+        #pass the filtered depth point cloud2 for visualizations
+        # self.get_logger().info('publishing a point cloud')
+        self.pub_cloud.publish(self.make_cloud(depth, msg.header))
+        
+
+
+
+    def make_cloud(self, depth, header):
+        fx, fy = self.fx, self.fy
+        cx, cy = self.cx, self.cy
+        s = self.step
+
+        z = depth[::s, ::s]
+        v, u = np.mgrid[0:depth.shape[0]:s, 0:depth.shape[1]:s]
+        valid = z > 0
+        z = z[valid]
+        x = (u[valid] - cx) * z / fx
+        y = (v[valid] - cy) * z / fy
+
+        pts = np.column_stack((x, y, z)).astype(np.float32)
+        return point_cloud2.create_cloud_xyz32(header, pts)
 
         #Temportal Filtering: (uses a median filter over the last N frames to keep "error memory")
         #reduces no data regions by using old data 
-        # 
+        #TODO does work well while moving so im going to worry about it later 
+
+
         # Hole filling: fill empty cells using neighboring values  
+        #TODO
 
 
+def main():
+    rclpy.init()
+    node = DepthMapper()
+    try:
+       rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cv2.destroyAllWindows()
+        node.destroy_node()
+        rclpy.shutdown()
 
 
-
-
-
-
-
-
-
-
-        # #clean the NAN or -inf from gazebo using a mask:
-        # valid = np.isfinite(depth) & (depth > 0.1) & (depth < 4.0)
-        # depth_clean = np.where(valid, depth, 0.0).astype(np.float32)
-        # #this does a double deravative (laplacian) to remove the constant sloped background and get key feature changes
-        # lap = cv2.Laplacian(depth_clean, cv2.CV_32F, ksize=3)
-        
-        # #create a non valid 8 bit mask to ignore those invalid cells that were replaced with 0:
-        # not_valid = (~valid).astype(np.uint8) #~valid flips this boolean array. #uint8 so we can use the 0 and 1 from the bools.
-
-        # # > 0 is a python trick to return a bool mask back so we can use it as a logic overlay. 
-        # invalid_near = cv2.dilate(not_valid, np.ones((5, 5), np.uint8)) > 0 
-
-        # # -- Next we create a mask: -- #
-        # #Which pixels have a strong edge? (True/False image)
-        # strong_edge = np.abs(lap) > self.lap_thresh
-
-        # #Which pixels are safe to trust? (not near any bad-depth pixel)
-        # safe = ~invalid_near
-
-        # # Keep only strong edges that are also safe
-        # good_edge = strong_edge & safe
-
-        # # Convert True/False into 255/0 so OpenCV can treat it as an image
-        # mask = good_edge.astype(np.uint8) * 255
-
-        # pass
+if __name__ == '__main__':
+    main()
