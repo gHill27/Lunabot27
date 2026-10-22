@@ -80,10 +80,12 @@ def generate_launch_description():
         executable='parameter_bridge',
         name='ros_gz_bridge',
         arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
             '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             # RealSense-style RGB-D camera, mounted top-middle of chassis
             '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
             '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
@@ -164,6 +166,12 @@ def generate_launch_description():
         # condition=IfCondition(LaunchConfiguration('rviz')),
         output='screen',
     )
+    test_driver = Node(
+        package='lunabotics_sim',
+        executable='test_driver.py',
+        name='driver',
+        output='screen'
+    )
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
     # scene setup) before spawning the robot.
@@ -185,6 +193,7 @@ def generate_launch_description():
         delayed_bridge,
         depth_node,
         rviz_node,
+        # test_driver,
         # fiducial_node,
         # orb_node,
         # canny_node,

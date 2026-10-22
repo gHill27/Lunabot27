@@ -44,6 +44,6 @@ def generate_launch_description():
     )
 
     # The bridge starts at 6 s, so wait for it and the camera topics
-    delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap])
+    delayed_rtabmap = TimerAction(period=1.0, actions=[rtabmap])
 
     return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap])
