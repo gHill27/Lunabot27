@@ -192,7 +192,7 @@ def generate_launch_description():
         delayed_spawn,
         delayed_bridge,
         depth_node,
-        rviz_node,
+        # rviz_node,
         # test_driver,
         # fiducial_node,
         # orb_node,

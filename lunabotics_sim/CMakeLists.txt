@@ -27,6 +27,7 @@ install(DIRECTORY
   models
   urdf
   scripts
+  config
   DESTINATION share/${PROJECT_NAME}
 )
 install(DIRECTORY launch rviz
