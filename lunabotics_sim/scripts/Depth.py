@@ -3,7 +3,6 @@
 import os
 import cv2 # type : ignore
 import cv_bridge
-import open3d as o3d #type: ignore
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -18,7 +17,7 @@ class DepthMapper(Node):
     def __init__(self):
         super().__init__('depthMapper')
         self.have_info = False
-        self.step = 2 # how much to fractionally reduce the amount of pixels in the point cloud 1/step so 4 is 1/4 the pixel amount
+        self.step = 4 # how much to fractionally reduce the amount of pixels in the point cloud 1/step so 4 is 1/4 the pixel amount
         self.bridge = CvBridge()
         viz_qos = QoSProfile(
             reliability=ReliabilityPolicy.RELIABLE,

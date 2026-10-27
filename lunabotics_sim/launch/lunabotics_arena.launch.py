@@ -191,7 +191,7 @@ def generate_launch_description():
         robot_state_publisher,
         delayed_spawn,
         delayed_bridge,
-        depth_node,
+        # depth_node,
         # rviz_node,
         # test_driver,
         # fiducial_node,

@@ -14,7 +14,7 @@ def generate_launch_description():
 
     # Switch to the raw sim depth to test whether Depth.py filtering is the problem:
     #   depth_topic:=/camera/camera/depth/image_raw
-    depth_topic = DeclareLaunchArgument('depth_topic', default_value='/depth_filtered')
+    depth_topic = DeclareLaunchArgument('depth_topic', default_value='/camera/camera/depth/image_raw')
     visual_odom = DeclareLaunchArgument('visual_odometry', default_value='false')
 
     # Existing launch, in sim mode
@@ -23,6 +23,21 @@ def generate_launch_description():
             os.path.join(pkg_share, 'launch', 'lunabotics_arena.launch.py')),
         launch_arguments={'use_sim': 'true'}.items(),
     )
+    rtabmap_args = ' '.join([
+        '-d',
+        '--Vis/MaxFeatures 0',
+        '--Reg/Force3DoF true',
+        '--Mem/SaveDepth16Format false',
+        '--Optimizer/DisparityVariance 0.5',
+        '--Kp/MaxFeatures -1',
+        '--RGBD/ProximityBySpace false',
+        '--RGBD/ProximityByTime false',
+        '--Reg/Strategy 0',
+        '--Mem/NotLinkedNodesKept false',
+        '--Rtabmap/LoopThr 1.0',
+        '--RGBD/AggressiveLoopThr 1.0',
+    ])
+    # then:  'args': rtabmap_args,
     # RTAB-Map
     rtabmap = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -38,7 +53,7 @@ def generate_launch_description():
             'odom_topic': '/odom',
             'use_sim_time': 'true',
             'qos': '2',                 # best effort; also connects to reliable publishers
-            'args': '-d',               # fresh map database each run
+            'args': rtabmap_args,
             'rtabmap_viz': 'true',
             'rviz': 'false',            # your base launch already starts RViz
             'namespace': '',
@@ -68,4 +83,4 @@ def generate_launch_description():
     delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap])
     delayed_nav2 = TimerAction(period=14.0, actions=[nav2, rviz])
 
-    return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap, delayed_nav2])
+    return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap])
