@@ -69,7 +69,9 @@
       </collision>
       <inertial>
         <mass value="${wheel_mass}"/>
-        <xacro:cylinder_inertia mass="${wheel_mass}" r="${wheel_radius}" h="${wheel_width}"/>
+        <inertia ixx="${(1/12)*wheel_mass*(3*wheel_radius*wheel_radius + wheel_width*wheel_width)}" ixy="0" ixz="0"
+         iyy="${0.5*wheel_mass*wheel_radius*wheel_radius}" iyz="0"
+         izz="${(1/12)*wheel_mass*(3*wheel_radius*wheel_radius + wheel_width*wheel_width)}"/>
       </inertial>
     </link>
 
@@ -83,22 +85,22 @@
 
   <xacro:property name="steer_limit"  value="0.6"/>  <!-- rad, joint hard limit tune later --> 
 
-  <xacro:macro name="steering_knuckle" params="prefix y_reflect">
+  <!-- <xacro:macro name="steering_knuckle" params="prefix y_reflect">
     <link name="${prefix}_steer_link">
       <inertial>
         <mass value="0.2"/>
         <xacro:box_inertia mass="0.2" x="0.05" y="0.05" z="0.05"/>
       </inertial>
-    </link>
+    </link> -->
 
-    <joint name="${prefix}_steer_joint" type="revolute">
+    <!-- <joint name="${prefix}_steer_joint" type="revolute">
       <parent link="chassis_link"/>
       <child link="${prefix}_steer_link"/>
       <origin xyz="${wheel_x_offset} ${y_reflect*wheel_y_offset} ${wheel_z_offset}" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-steer_limit}" upper="${steer_limit}" effort="20" velocity="2.0"/>
     </joint>
-  </xacro:macro>
+  </xacro:macro> -->
 
   <!-- ===================== Base / chassis ===================== -->
 
@@ -133,10 +135,10 @@
 
   <!-- ===================== Wheels ===================== -->
    <!-- Front: steered -->
-  <xacro:steering_knuckle prefix="front_left"  y_reflect="1"/>
-  <xacro:steering_knuckle prefix="front_right" y_reflect="-1"/>
-  <xacro:wheel prefix="front_left"  parent="front_left_steer_link"  xyz="0 0 0"/>
-  <xacro:wheel prefix="front_right" parent="front_right_steer_link" xyz="0 0 0"/>
+  <xacro:wheel prefix="front_left"  parent="chassis_link"
+             xyz="${wheel_x_offset} ${wheel_y_offset} ${wheel_z_offset}"/>
+  <xacro:wheel prefix="front_right" parent="chassis_link"
+             xyz="${wheel_x_offset} ${-wheel_y_offset} ${wheel_z_offset}"/>
 
   <!-- Rear: fixed direction -->
   <xacro:wheel prefix="rear_left"  parent="chassis_link"
@@ -252,7 +254,88 @@
   <!-- Joint-state publishing (so /joint_states is available) plus a
        DiffDrive system plugin so the wheels actually respond to velocity
        commands. 4-wheel skid-steer: two joints per side. -->
-   <gazebo>
+  <xacro:property name="track_factor" value="1.0"/>
+  <xacro:property name="wheel_separation_eff"
+                  value="${(chassis_width + wheel_width) * track_factor}"/>
+   
+    <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+      <joint_name>front_left_wheel_joint</joint_name>
+      <joint_name>front_right_wheel_joint</joint_name>
+      <joint_name>rear_left_wheel_joint</joint_name>
+      <joint_name>rear_right_wheel_joint</joint_name>
+    </plugin>
+
+    <plugin filename="gz-sim-diff-drive-system"
+          name="gz::sim::systems::DiffDrive">
+    <left_joint>front_left_wheel_joint</left_joint>
+    <left_joint>rear_left_wheel_joint</left_joint>
+    <right_joint>front_right_wheel_joint</right_joint>
+    <right_joint>rear_right_wheel_joint</right_joint>
+
+    <wheel_separation>${wheel_separation_eff}</wheel_separation>
+    <wheel_radius>${wheel_radius}</wheel_radius>
+
+    <topic>/cmd_vel</topic>
+
+    <max_linear_velocity>1.0</max_linear_velocity>
+    <max_angular_velocity>1.5</max_angular_velocity>
+    <max_linear_acceleration>1.0</max_linear_acceleration>
+    <max_angular_acceleration>2.0</max_angular_acceleration>
+  </plugin>
+  
+    <!-- <plugin filename="gz-sim-diff-drive-system"
+            name="gz::sim::systems::DiffDrive">
+      <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>rear_left_wheel_joint</left_joint>
+      <right_joint>front_right_wheel_joint</right_joint>
+      <right_joint>rear_right_wheel_joint</right_joint>
+
+      <wheel_separation>${wheel_separation_eff}</wheel_separation>
+      <wheel_radius>${wheel_radius}</wheel_radius>
+
+      <topic>/cmd_vel</topic>
+      <odom_topic>/odom</odom_topic>
+      <tf_topic>/tf</tf_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_link</child_frame_id>
+      <odom_publish_frequency>50</odom_publish_frequency> -->
+
+      <!-- Smooth commands so wheels don't slip/spin out on start/stop -->
+      <!-- <max_linear_velocity>1.0</max_linear_velocity>
+      <max_angular_velocity>1.5</max_angular_velocity>
+      <max_linear_acceleration>1.0</max_linear_acceleration>
+      <max_angular_acceleration>2.0</max_angular_acceleration>
+    </plugin> -->
+    <plugin filename="gz-sim-odometry-publisher-system"
+          name="gz::sim::systems::OdometryPublisher">
+    <odom_frame>odom</odom_frame>
+    <robot_base_frame>base_link</robot_base_frame>
+    <odom_publish_frequency>50</odom_publish_frequency>
+    <odom_topic>/odom</odom_topic>
+    <tf_topic>/tf</tf_topic>
+    <dimensions>2</dimensions>
+  </plugin>
+  </gazebo>
+
+    <xacro:macro name="wheel_friction" params="link">
+    <gazebo reference="${link}">
+      <mu1>0.5</mu1>
+      <mu2>0.5</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:wheel_friction link="front_left_wheel_link"/>
+  <xacro:wheel_friction link="front_right_wheel_link"/>
+  <xacro:wheel_friction link="rear_left_wheel_link"/>
+  <xacro:wheel_friction link="rear_right_wheel_link"/>
+
+   
+   <!-- Ackermann plugin -->
+   <!-- <gazebo>
     <plugin filename="gz-sim-joint-state-publisher-system"
             name="gz::sim::systems::JointStatePublisher">
       <joint_name>front_left_wheel_joint</joint_name>
@@ -263,11 +346,8 @@
       <joint_name>front_right_steer_joint</joint_name>
     </plugin>
 
-    <!-- 4-Wheel Skid-Steer / Diff Drive Plugin -->
-    <plugin filename="gz-sim-diff-drive-system"
-            name="gz::sim::systems::DiffDrive">
-    <!-- <plugin filename="gz-sim-ackermann-steering-system"
-            name="gz::sim::systems::AckermannSteering"> -->
+    <plugin filename="gz-sim-ackermann-steering-system"
+            name="gz::sim::systems::AckermannSteering">
       <left_joint>front_left_wheel_joint</left_joint>
       <left_joint>rear_left_wheel_joint</left_joint>
       <right_joint>front_right_wheel_joint</right_joint>
@@ -286,6 +366,6 @@
       <child_frame_id>base_link</child_frame_id>
       <odom_publish_frequency>30</odom_publish_frequency>
     </plugin>
-  </gazebo>
+  </gazebo> -->
   
 </robot>
