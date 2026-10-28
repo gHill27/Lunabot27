@@ -46,14 +46,18 @@ def generate_launch_description():
     # Process the xacro into a robot_description string.
     xacro_file = os.path.join(pkg_path, 'urdf', 'lunabot.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_file)
-    robot_description = {'robot_description': robot_description_config.toxml()}
+    robot_description = robot_description_config.toxml()
 
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[robot_description],
+        parameters=[{
+            'robot_description': robot_description,
+            'use_sim_time': True,
+            'publish_frequency': 50.0,
+            }],
         condition=IfCondition(use_sim),
     )
 

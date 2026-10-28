@@ -5,6 +5,7 @@ from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
 
 
 def generate_launch_description():
@@ -35,6 +36,7 @@ def generate_launch_description():
         '--Reg/Strategy 0',
         '--Mem/NotLinkedNodesKept false',
         '--Rtabmap/LoopThr 1.0',
+        '--wait_for_transform 0.5 '      # TF lookup tolerance
         '--RGBD/AggressiveLoopThr 1.0',
     ])
     # then:  'args': rtabmap_args,
@@ -57,6 +59,7 @@ def generate_launch_description():
             'rtabmap_viz': 'true',
             'rviz': 'false',            # your base launch already starts RViz
             'namespace': '',
+            'wait_for_transform': '0.5',  # Increase from default 0.2 to 0.5 seconds
         }.items(),
     )
     nav2 = IncludeLaunchDescription(
@@ -83,4 +86,14 @@ def generate_launch_description():
     delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap])
     delayed_nav2 = TimerAction(period=14.0, actions=[nav2, rviz])
 
-    return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap])
+    # fastdds_profile = SetEnvironmentVariable(
+    #     name='FASTRTPS_DEFAULT_PROFILES_FILE',
+    #     value=os.path.join(pkg_share, 'config', 'fastdds_shm.xml')
+    # )
+    # fastdds_qos = SetEnvironmentVariable(
+    #     name='RMW_FASTRTPS_USE_QOS_FROM_XML',
+    #     value='1'
+    # )
+    #TODO: for implementatoin with wifi fix the dds profile! all local currnetly!!!!!
+
+    return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap, delayed_nav2])
