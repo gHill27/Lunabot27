@@ -17,7 +17,7 @@ install(PROGRAMS
   scripts/CannyEdgeDetector.py
   scripts/OrbDetector.py
   scripts/Depth.py
-  scripts/test_driver.py
+  scripts/startup.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -91,7 +91,12 @@ def generate_launch_description():
             'params_file': os.path.join(pkg_share, 'config', 'nav2_params.yaml'),
         }.items(),
     )
-    
+    startup = Node(
+        package='lunabotics_sim',
+        executable='startup.py',
+        name='startupNode',
+        output='screen'
+    )
 
     # RViz2 pre-loaded with the Nav2 default panel
     rviz_config_file = os.path.join(nav2_share, 'rviz', 'nav2_default_view.rviz')
@@ -104,8 +109,9 @@ def generate_launch_description():
         output='screen',
     )
     # The bridge starts at 6 s, so wait for it and the camera topics
-    delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap, depth_to_cloud])
-    delayed_nav2 = TimerAction(period=14.0, actions=[nav2, rviz])
+    delayed_rtabmap = TimerAction(period=6.0, actions=[rtabmap, depth_to_cloud])
+    delayed_nav2 = TimerAction(period=10.0, actions=[nav2, rviz])
+    delayed_startup = TimerAction(period=12.0, actions=[startup])
 
     # fastdds_profile = SetEnvironmentVariable(
     #     name='FASTRTPS_DEFAULT_PROFILES_FILE',
@@ -117,4 +123,4 @@ def generate_launch_description():
     # )
     #TODO: for implementatoin with wifi fix the dds profile! all local currnetly!!!!!
 
-    return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap, delayed_nav2])
+    return LaunchDescription([depth_topic, visual_odom, base_launch, delayed_rtabmap, delayed_nav2, delayed_startup])
