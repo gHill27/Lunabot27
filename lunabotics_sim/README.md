@@ -25,26 +25,20 @@ package.
 | File | What it does |
 |---|---|
 | `launch/spawn_lunabot.launch.py` | Arena (`artemis_arena`) + robot spawn together — **use this one** for most work. |
-| `launch/artemis_arena.launch.py` | `artemis_arena` world only. |
-| `launch/ucf_arena.launch.py` | `ucf_arena` world only. |
-| `launch/arena_b.launch.py` | `arena_b` world only. |
-
-The three arena-only launch files are kept separate rather than
-parameterized into one launch file with a `world` argument, by preference.
+| `launch/Mapping.launch.py` | `artemis_arena` world with nav2 and RTAB mapping packages for launching. |
 
 ## Build & run
 
 ```bash
 colcon build --symlink-install --packages-select lunabotics_sim
 source install/setup.bash
-ros2 launch lunabotics_sim lunabotics_arena.launch.py
+ros2 launch lunabotics_sim lunabotics_arena.launch.py use_sim:=true
 ```
 
-To bring up just an arena without the robot:
+To bring up just an arena with SLAM mapping and navigation:
 
 ```bash
-ros2 launch lunabotics_sim artemis_arena.launch.py
-# or ucf_arena.launch.py / arena_b.launch.py
+ros2 launch lunabotics_sim Mapping.launch.py
 ```
 
 ## Requirements
