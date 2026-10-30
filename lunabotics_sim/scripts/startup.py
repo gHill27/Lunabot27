@@ -33,11 +33,11 @@ class Startup(Node):
                 self.get_logger().info('Detected /clock topic; enabling use_sim_time automatically.')
                 self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, True)])
 
+        self.odom_sub = self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.using_sim_time = self.get_parameter('use_sim_time').value
         clock_type = 'SIMULATION time (/clock)' if self.using_sim_time else 'SYSTEM wall time'
         self.get_logger().info(f'Initializing CircleDriver using {clock_type} at 10 Hz.')
         self.get_logger().info('Waiting for first odometry message...')
-        self.odom_sub = self.create_subscription(Odometry, odom_topic, self.odom_callback, 10)
 
 
         self.linear_speed: float = 0.0

@@ -128,7 +128,7 @@ def generate_launch_description():
         depth_topic,
         visual_odom,
         base_launch,
-        # delayed_rtabmap,
-        # delayed_nav2,
+        delayed_rtabmap,
+        delayed_nav2,
         delayed_startup
         ])
