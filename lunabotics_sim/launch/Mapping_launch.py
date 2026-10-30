@@ -62,6 +62,27 @@ def generate_launch_description():
             'wait_for_transform': '0.5',  # Increase from default 0.2 to 0.5 seconds
         }.items(),
     )
+
+    depth_to_cloud = Node(
+        package='rtabmap_util',
+        executable='point_cloud_xyz',
+        name='point_cloud_xyz',
+        output='screen',
+        parameters=[{
+            'use_sim_time':True,
+            'decimation': 4,       # Downsamples 640x480 to 160x120 for fast Nav2 raycasting
+            'max_depth': 4.0,      # Clip noisy far points
+            'voxel_size': 0.05,    # 5cm voxel grid filter
+            'approx_sync': True,
+        }],
+        remappings=[
+            ('depth/image', '/camera/camera/depth/image_raw'),
+            ('depth/camera_info', '/camera/camera/color/camera_info'),
+            ('cloud', '/camera/depth_registered/points')
+        ]
+    )
+
+
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(nav2_share, 'launch', 'navigation_launch.py')),
@@ -83,7 +104,7 @@ def generate_launch_description():
         output='screen',
     )
     # The bridge starts at 6 s, so wait for it and the camera topics
-    delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap])
+    delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap, depth_to_cloud])
     delayed_nav2 = TimerAction(period=14.0, actions=[nav2, rviz])
 
     # fastdds_profile = SetEnvironmentVariable(
