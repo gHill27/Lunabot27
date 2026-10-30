@@ -92,7 +92,7 @@ def generate_launch_description():
             '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
             '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
-            '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
         ],
         remappings=[
             ('/camera/image', '/camera/camera/color/image_raw'),
