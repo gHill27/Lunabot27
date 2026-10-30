@@ -179,11 +179,11 @@ def generate_launch_description():
 
     # Give the arena a few seconds to come up (Sun model fetch from Fuel,
     # scene setup) before spawning the robot.
-    delayed_spawn = TimerAction(period=5.0, actions=[spawn_entity])
+    delayed_spawn = TimerAction(period=4.0, actions=[spawn_entity])
 
     # Bridge only needs to exist once the robot (and its plugin) is
     # actually spawned.
-    delayed_bridge = TimerAction(period=6.0, actions=[ros_gz_bridge])
+    delayed_bridge = TimerAction(period=5.0, actions=[ros_gz_bridge])
 
     return LaunchDescription([
         use_sim_arg,

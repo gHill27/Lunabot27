@@ -7,11 +7,23 @@ import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from geometry_msgs.msg import Pose,Twist
+from nav_msgs.msg import Odometry
 import message_filters
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.time import Time
+from typing import Optional
 
-#Fiducial tracker node
+def yaw_from_quaternion(q) -> float:
+    """Convert geometry_msgs/Quaternion to yaw in radians [-pi, pi]."""
+    siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+    cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+    return math.atan2(siny_cosp, cosy_cosp)
+
+def normalize_angle(angle: float) -> float:
+    """Wrap angle to [-pi, pi]."""
+    return math.atan2(math.sin(angle), math.cos(angle))
+
+#startup node
 class Startup(Node):
     def __init__(self):
         super().__init__('startupNode')
@@ -24,68 +36,74 @@ class Startup(Node):
         self.using_sim_time = self.get_parameter('use_sim_time').value
         clock_type = 'SIMULATION time (/clock)' if self.using_sim_time else 'SYSTEM wall time'
         self.get_logger().info(f'Initializing CircleDriver using {clock_type} at 10 Hz.')
+        self.get_logger().info('Waiting for first odometry message...')
+        self.odom_sub = self.create_subscription(Odometry, odom_topic, self.odom_callback, 10)
 
-        self.declare_parameter('linear_speed', 0.2)
-        self.declare_parameter('angular_speed', 0.5)
-        self.linear_speed = self.get_parameter('linear_speed').value
-        self.angular_speed : float = self.get_parameter('angular_speed').value
+
+        self.linear_speed: float = 0.0
+        self.angular_speed : float = 0.5
+        odom_topic = '/odom'
+        cmd_vel_topic = '/cmd_vel'
+        self.stop_tolerance = math.radians(2) #2 degree tolerance
+
+        #odom
+        self.start_yaw = None
+        self.last_yaw = None
+        self.accumulated_yaw = 0.0
+        self.current_yaw = 0.0
         
         # Duration for one full 360-degree circle: 2 * pi / |angular_speed|
         self.duration_sec = (2.0 * math.pi) / abs(self.angular_speed)
         self.start_time = None
-        self.publsiher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.timer = self.create_timer(0.1, self.timer_callback)
+    
+    def odom_callback(self, msg: Odometry):
+        yaw:float = yaw_from_quaternion(msg.pose.pose.orientation)
+        self.current_yaw = yaw
+
+        # Latch initial heading on the first /odom message
+        if self.start_yaw is None:
+            self.start_yaw:Optional[float] = yaw
+            self.last_yaw:Optional[float] = yaw
+            self.get_logger().info(
+                f'Initial yaw latched at {math.degrees(self.start_yaw):.1f} deg. Starting circle!'
+            )
+            return #only for the first time must return 
+
+        # Compute shortest signed delta since last odom message to handle -pi/pi wrap-around
+        dyaw:float = normalize_angle(yaw - self.last_yaw) #type:ignore <--- ignore for my dumb linter
+        self.accumulated_yaw += dyaw
+        self.last_yaw = yaw
+        return
+
 
     def timer_callback(self):
-        self.driveinCircle()
-
-    def driveinCircle(self):
-        twist_msg = Twist()
-        twist_msg.linear.x = 0.2
-        twist_msg.linear.y = 0.0
-        twist_msg.linear.z = 0.0
-
-        # Set angular velocity (roll, pitch, yaw)
-        twist_msg.angular.x = 0.0
-        twist_msg.angular.y = 0.0
-        twist_msg.angular.z = 0.3
-
-def timer_callback(self):
         now = self.get_clock().now()
-
-        # When use_sim_time is True, clock returns 0 until the first /clock message arrives.
-        # When use_sim_time is False, now.nanoseconds is immediately > 0 (Unix epoch).
-        if now.nanoseconds == 0:
-            self.get_logger().info('Waiting for /clock to publish...', throttle_duration_sec=2.0)
+        if self.get_clock().now().nanoseconds == 0 or self.start_yaw is None:
             return
+        total_turned = abs(self.accumulated_yaw)
+        remaining = (2.0 * math.pi) - total_turned
 
-        # Latch start time on the first valid tick
-        if self.start_time is None:
-            self.start_time = now
-            self.get_logger().info(
-                f'Starting circle: v={self.linear_speed} m/s, w={self.angular_speed} rad/s '
-                f'for {self.duration_sec:.2f}s.'
-            )
-
-        elapsed = (now - self.start_time).nanoseconds / 1e9
-
-        # Handle Gazebo simulation resets (where sim time jumps backward)
-        if elapsed < 0.0:
-            self.get_logger().warn('Clock jumped backward (sim reset detected). Resetting start time.')
-            self.start_time = now
-            elapsed = 0.0
-
-        msg = Twist()
-        if elapsed < self.duration_sec:
-            msg.linear.x = float(self.linear_speed)
-            msg.angular.z = float(self.angular_speed)
-            self.cmd_pub.publish(msg)
-        else:
-            # Publish zero velocity to stop the robot before exiting
+        # Check if we have completed 360 deg (within tolerance)
+        if remaining <= self.stop_tolerance:
             self.cmd_pub.publish(Twist())
-            self.get_logger().info('Circle complete! Stopping robot and shutting down node.')
+            self.get_logger().info(
+                f'Full circle complete! Final yaw: {math.degrees(self.current_yaw):.1f} deg '
+                f'(Start yaw: {math.degrees(self.start_yaw):.1f} deg, '
+                f'Total turned: {math.degrees(total_turned):.1f} deg). Stopping.'
+            )
             self.timer.cancel()
             raise SystemExit
+
+        # Optional proportional slow-down in the last 15 degrees so we don't overshoot 0 deg at 10 Hz
+        msg = Twist()
+        slowdown_zone = math.radians(15.0)
+        scale = min(1.0, max(0.25, remaining / slowdown_zone))
+
+        msg.linear.x = self.linear_speed * scale
+        msg.angular.z = self.angular_speed * scale
+        self.cmd_pub.publish(msg)
 
 
 def main(args=None):
