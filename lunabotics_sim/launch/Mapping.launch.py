@@ -56,7 +56,7 @@ def generate_launch_description():
             'use_sim_time': 'true',
             'qos': '2',                 # best effort; also connects to reliable publishers
             'args': rtabmap_args,
-            'rtabmap_viz': 'true',
+            'rtabmap_viz': 'false',
             'rviz': 'false',            # your base launch already starts RViz
             'namespace': '',
             'wait_for_transform': '0.5',  # Increase from default 0.2 to 0.5 seconds

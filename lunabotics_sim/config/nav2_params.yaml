@@ -24,8 +24,8 @@ controller_server:
     controller_frequency: 20.0
     costmap_update_timeout: 0.30
     min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
     failure_tolerance: 0.3
     progress_checker_plugins: ["progress_checker"]
     goal_checker_plugins: ["general_goal_checker"]
@@ -44,44 +44,115 @@ controller_server:
       stateful: True
 
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
+      # plugin: "nav2_rotation_shim_controller::RotationShimController"
+      plugin: "nav2_mppi_controller::MPPIController"
+      # plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
-      min_vel_y: 0.0
-      max_vel_x: 0.4
-      max_vel_y: 0.0
-      max_vel_theta: 1.0
-      min_speed_xy: 0.0
-      max_speed_xy: 0.4
-      min_speed_theta: 0.0
-      acc_lim_x: 2.5
-      acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: 0.0
-      decel_lim_theta: -3.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.25
-      short_circuit_trajectory_evaluation: True
-      stateful: True
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
-      RotateToGoal.lookahead_time: -1.0
+
+      #mppi_controller params:
+      time_steps: 32
+      model_dt: 0.05 #Step duration (32 * 0.05 = 1.6s lookahead)
+      motion_model: "DiffDrive" #TODO: Change to ackerman on real robot model!!
+      batch_size: 1000                    # Number of trajectory rollouts
+      vx_std: 0.2                         # Noise sampling std for linear velocity (m/s)
+      wz_std: 0.4                         # Noise sampling std for angular velocity (rad/s)
+      temperature: 0.3                    # Softmax temperature (lower = more greedy towards lowest cost)
+      gamma: 0.015                        # Cost weighting factor
+      visualize: true                     # Publishes rollout batches to RViz for debugging
+      vx_max: 0.4
+      vx_min: 0.0                        # Set to 0.0 if you want to strictly forbid reversing
+      vy_max: 0.0
+      wz_max: 1.0
+      ax_max: 2.5
+      ax_min: -2.5
+      az_max: 3.2
+      critics: [
+        "ConstraintCritic",
+        "ObstaclesCritic",
+        "GoalCritic",
+        "GoalAngleCritic",
+        "PathAlignCritic",
+        "PathFollowCritic",
+        "PathAngleCritic",
+        "PreferForwardCritic"
+      ]
+      #old params if we switch back to DWB planner
+      # min_vel_x: 0.0
+      # min_vel_y: 0.0
+      # max_vel_x: 0.4
+      # max_vel_y: 0.0
+      # max_vel_theta: 1.0
+      # min_speed_xy: 0.0
+      # max_speed_xy: 0.4
+      # min_speed_theta: 0.0
+      # acc_lim_x: 2.5
+      # acc_lim_y: 0.0
+      # acc_lim_theta: 3.2
+      # decel_lim_x: -2.5
+      # decel_lim_y: 0.0
+      # decel_lim_theta: -3.2
+      # vx_samples: 20
+      # vy_samples: 5
+      # vtheta_samples: 20
+      # sim_time: 1.7
+      # linear_granularity: 0.05
+      # angular_granularity: 0.025
+      # transform_tolerance: 0.2
+      # xy_goal_tolerance: 0.25
+      # trans_stopped_velocity: 0.25
+      # short_circuit_trajectory_evaluation: True
+      # stateful: True
+      # # critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"] #for other DWB
+      # BaseObstacle.scale: 0.02
+      # PathAlign.scale: 32.0
+      # PathAlign.forward_point_distance: 0.1
+      # GoalAlign.scale: 24.0
+      # GoalAlign.forward_point_distance: 0.1
+      # PathDist.scale: 32.0
+      # GoalDist.scale: 24.0
+      # RotateToGoal.scale: 32.0
+      # RotateToGoal.slowing_factor: 5.0
+      # RotateToGoal.lookahead_time: -1.0
+
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+
+      ObstaclesCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        repulsion_weight: 1.5
+        critical_weight: 20.0
+        consider_footprint: false         # Set true for proper urdf file
+        collision_cost: 200.0
+
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.0        # Start heavily biasing toward goal when within 1.0m
+
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 10.0
+        max_path_occupancy_ratio: 0.07
+        trajectory_point_step: 3
+
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.0
+
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0
+        offset_from_furthest: 4
 
 local_costmap:
   local_costmap:
@@ -108,13 +179,13 @@ local_costmap:
         mark_threshold: 0
         observation_sources: pointcloud
         pointcloud:
-          topic: /rtabmap/cloud_obstacles
+          topic: /camera/depth_registered/points #uses the live data instead so it can update fast
           max_obstacle_height: 2.0
-          min_obstacle_height: 0.10
+          min_obstacle_height: 0.30 #check later 
           clearing: True
           marking: True
           data_type: "PointCloud2"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 5.0
           obstacle_max_range: 2.5
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -131,7 +202,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       robot_radius: 0.01
-      resolution: 0.15
+      resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       static_layer:

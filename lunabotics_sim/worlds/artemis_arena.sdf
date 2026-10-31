@@ -76,7 +76,7 @@
         <pose>0 0 0 0 0 0</pose>
     </include>
 
-    <!-- Round Rocks (Buffered inward from walls) -->
+    <!-- Round Rocks -->
     <include>
       <name>round_rock_1</name>
       <pose>-2.0 -0.017282 0.05 0 0 0.846674</pose>
@@ -85,17 +85,17 @@
 
     <include>
       <name>round_rock_2</name>
-      <pose>-2.2 -1.5 0.05 0 0 0.846674</pose>
+      <pose>-2.4 -1.5 0.05 0 0 0.846674</pose>
       <uri>model://round_rock</uri>
     </include>
 
     <include>
       <name>round_rock_3</name>
-      <pose>2.4 -2.2 0.05 0 0 0.846674</pose>
+      <pose>-2.4 -2.4 0.05 0 0 0.846674</pose>
       <uri>model://round_rock</uri>
     </include>
     
-    <!-- Rough Rocks (Buffered inward from walls) -->
+    <!-- Rough Rocks -->
     <include>
       <name>rough_rock_1</name>
       <pose>-1.5 1.0 0.0 0.002665 -0.015178 -2.17369</pose>
@@ -110,13 +110,13 @@
 
     <include>
       <name>rough_rock_3</name>
-      <pose>1.8 0.333957 0.0 0.002665 -0.015178 -2.17369</pose>
+      <pose>-1.8 0.333957 0.0 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
     <include>
       <name>rough_rock_4</name>
-      <pose>1.2 1.5 0.0 0.002665 -0.015178 -2.17369</pose>
+      <pose>1.2 1.8 0.0 0.002665 -0.015178 -2.17369</pose>
       <uri>model://rough_rock</uri>
     </include>
 
@@ -126,7 +126,7 @@
       <uri>model://rough_rock</uri>
     </include>
 
-    <!-- QR Code Tags (Pulled safely inside) -->
+    <!-- QR Code Tags -->
     <include>
       <name>tag_917_840</name>
       <pose>4.05 -1.0 1.25  1.5708 0 -1.5708</pose>

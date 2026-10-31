@@ -28,7 +28,7 @@
                 <geometry>
                     <!-- Replaced complex .stl mesh with a simple primitive -->
                     <sphere>
-                        <radius>0.2</radius> 
+                        <radius>0.15</radius> 
                     </sphere>
                 </geometry>
             </collision>

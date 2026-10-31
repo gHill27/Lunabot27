@@ -70,7 +70,7 @@ def generate_launch_description():
         arguments=[
             '-topic', '/robot_description',
             '-name', 'lunabot',
-            '-x', '1.0', '-y', '-1.0', '-z', '1.0',
+            '-x', '2.4', '-y', '-1.6', '-z', '1.0',
         ],
         output='screen',
         condition=IfCondition(use_sim)

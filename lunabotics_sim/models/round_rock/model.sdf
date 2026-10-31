@@ -23,14 +23,24 @@
                 </material>
             </visual>
 
-            <!-- collision geometry-->
-            <collision name="collision">
+            <!-- collision geometry -->
+            <!-- <collision name="collision">
                 <geometry>
                     <mesh>
                         <uri>model://round_rock/meshes/rock_round.stl</uri>
                     </mesh>
+                </geometry> -->
+                <!-- <max_contacts>10</max_contacts>-->
+            <!-- </collision>  -->
+            
+            <!-- collision geometry-->
+            <collision name="collision">
+                <geometry>
+                    <!-- Replaced complex .stl mesh with a simple primitive -->
+                    <sphere>
+                        <radius>0.15</radius> 
+                    </sphere>
                 </geometry>
-                <max_contacts>10</max_contacts> <!--hopefully prevents lag-->
             </collision>
 
             <inertial>
