@@ -1,16 +1,18 @@
 <?xml version="1.0"?>
 <robot name="lunabot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- Include the TiM781S macro -->
+  <xacro:include filename="$(find lunabotics_sim)/urdf/lidar.urdf.xacro" />
 
   <!-- ===================== Parameters ===================== -->
   <!-- Placeholder dimensions only — swap in real Lunabotics chassis/wheel
        geometry once the mechanical design is locked. -->
-  <xacro:property name="chassis_length" value="0.6"/>
+  <xacro:property name="chassis_length" value="1.2"/>
   <xacro:property name="chassis_width"  value="0.5"/>
   <xacro:property name="chassis_height" value="0.2"/>
   <xacro:property name="chassis_mass"   value="15.0"/>
 
-  <xacro:property name="wheel_radius" value="0.12"/>
-  <xacro:property name="wheel_width"  value="0.06"/>
+  <xacro:property name="wheel_radius" value="0.15"/>
+  <xacro:property name="wheel_width"  value="0.1"/>
   <xacro:property name="wheel_mass"   value="1.5"/>
 
   <!-- Wheel centers set slightly outside the chassis footprint, at a height
@@ -113,6 +115,7 @@
     <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
   </joint>
 
+
   <link name="chassis_link">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -132,6 +135,13 @@
       <xacro:box_inertia mass="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}"/>
     </inertial>
   </link>
+
+
+  <!-- ===================== LIDAR ===================== -->
+  <xacro:sick_tim781s name="front_laser" parent="chassis_link">
+    <!-- Adjust xyz/rpy to position it exactly on your mount -->
+    <origin xyz="0.30 0.0 0.10" rpy="0 0 0" />
+  </xacro:sick_tim781s>
 
   <!-- ===================== Wheels ===================== -->
    <!-- Front: steered -->
