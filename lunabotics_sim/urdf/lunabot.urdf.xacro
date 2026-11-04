@@ -9,11 +9,11 @@
   <xacro:property name="chassis_length" value="1.2"/>
   <xacro:property name="chassis_width"  value="0.5"/>
   <xacro:property name="chassis_height" value="0.2"/>
-  <xacro:property name="chassis_mass"   value="15.0"/>
+  <xacro:property name="chassis_mass"   value="1.0"/>
 
   <xacro:property name="wheel_radius" value="0.15"/>
   <xacro:property name="wheel_width"  value="0.1"/>
-  <xacro:property name="wheel_mass"   value="1.5"/>
+  <xacro:property name="wheel_mass"   value="0.5"/> <!-- update on real weight!! -->
 
   <!-- Wheel centers set slightly outside the chassis footprint, at a height
        so the wheel radius reaches the ground when chassis origin sits at
@@ -140,7 +140,7 @@
   <!-- ===================== LIDAR ===================== -->
   <xacro:sick_tim781s name="front_laser" parent="chassis_link">
     <!-- Adjust xyz/rpy to position it exactly on your mount -->
-    <origin xyz="0.30 0.0 0.10" rpy="0 0 0" />
+    <origin xyz="0.30 0.0 0.2" rpy="0 0 0" />
   </xacro:sick_tim781s>
 
   <!-- ===================== Wheels ===================== -->
@@ -214,10 +214,10 @@
   </link>
 
   <joint name="mast_to_camera" type="fixed">
-    <parent link="camera_mast_link"/>
+    <parent link="chassis_link"/> <!-- changed this to be just on the chassis for simplicity-->
     <child link="camera_link"/>
     <!-- top of the mast, tilted downward by camera_tilt about Y -->
-    <origin xyz="0 0 ${mast_height/2 + camera_mount_height}" rpy="0 0 0"/>
+    <origin xyz="-0.6 0 0.12" rpy="0 0 3.141592653589793"/>
     <!-- <origin xyz="0 0 ${mast_height/2 + camera_mount_height}" rpy="0 ${camera_tilt} 0"/> -->
   </joint>
 
@@ -264,7 +264,9 @@
   <!-- Joint-state publishing (so /joint_states is available) plus a
        DiffDrive system plugin so the wheels actually respond to velocity
        commands. 4-wheel skid-steer: two joints per side. -->
-  <xacro:property name="track_factor" value="1.0"/>
+  <xacro:property name="track_factor" value="3.5"/>
+   <!-- set through this equation:  
+   W_eff = W * (1 + L^2/W^2) -->
   <xacro:property name="wheel_separation_eff"
                   value="${(chassis_width + wheel_width) * track_factor}"/>
    

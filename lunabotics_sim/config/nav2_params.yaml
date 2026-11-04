@@ -190,7 +190,7 @@ local_costmap:
         z_voxels: 16
         max_obstacle_height: 2.0
         mark_threshold: 0
-        observation_sources: pointcloud
+        observation_sources: [pointcloud, laserscan]
         pointcloud:
           topic: /camera/depth_registered/points #uses the live data instead so it can update fast
           max_obstacle_height: 2.0
@@ -200,6 +200,14 @@ local_costmap:
           data_type: "PointCloud2"
           raytrace_max_range: 5.0
           obstacle_max_range: 2.5
+        laserscan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: true
+          data_type: "LaserScan"
+          raytrace_max_range: 25.0 #sick lidars actual range
+          obstacle_max_range: 24.5
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 2.0

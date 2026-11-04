@@ -41,7 +41,7 @@ class Startup(Node):
 
 
         self.linear_speed: float = 0.0
-        self.angular_speed : float = 0.5
+        self.angular_speed : float = 0.75
         odom_topic = '/odom'
         cmd_vel_topic = '/cmd_vel'
         self.stop_tolerance = math.radians(2) #2 degree tolerance
@@ -79,6 +79,7 @@ class Startup(Node):
 
 
     def timer_callback(self):
+        self.get_logger().info(f'current yaw is {self.current_yaw}')
         now = self.get_clock().now()
         if self.get_clock().now().nanoseconds == 0 or self.start_yaw is None:
             return
