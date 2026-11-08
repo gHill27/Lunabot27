@@ -24,33 +24,44 @@ def generate_launch_description():
             os.path.join(pkg_share, 'launch', 'lunabotics_arena.launch.py')),
         launch_arguments={'use_sim': 'true'}.items(),
     )
-    
-
+    rtabmap_args = ' '.join([
+        '-d',
+        '--Vis/MaxFeatures 0',
+        '--Reg/Force3DoF true',
+        '--Mem/SaveDepth16Format false',
+        '--Optimizer/DisparityVariance 0.5',
+        '--Kp/MaxFeatures -1',
+        '--RGBD/ProximityBySpace false',
+        '--RGBD/ProximityByTime false',
+        '--Reg/Strategy 0',
+        '--Mem/NotLinkedNodesKept false',
+        '--Rtabmap/LoopThr 1.0',
+        '--wait_for_transform 0.5 '      # TF lookup tolerance
+        '--RGBD/AggressiveLoopThr 1.0',
+    ])
+    # then:  'args': rtabmap_args,
     # RTAB-Map
-    rtabmap_params_file = os.path.join(pkg_share, 'config', 'rtabmap_params.yaml')
-
     rtabmap = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-        os.path.join(rtabmap_share, 'launch', 'rtabmap.launch.py')),
-    launch_arguments={
-        'frame_id': 'base_link',
-        'rgb_topic': '/camera/camera/color/image_raw',
-        'camera_info_topic': '/camera/camera/color/camera_info',
-        'depth_topic': LaunchConfiguration('depth_topic'),
-        'subscribe_depth': 'true',
-        'approx_sync': 'true',
-        'visual_odometry': LaunchConfiguration('visual_odometry'),
-        'odom_topic': '/odom',
-        'use_sim_time': 'true',
-        'qos': '2',
-        'cfg': os.path.join(pkg_share, 'config', 'rtabmap.ini'),
-        'args': "--delete_db_on_start",                          
-        'rtabmap_viz': 'true',
-        'rviz': 'false',
-        'namespace': '',
-        'wait_for_transform': '0.5',
-    }.items(),
-)
+        PythonLaunchDescriptionSource(
+            os.path.join(rtabmap_share, 'launch', 'rtabmap.launch.py')),
+        launch_arguments={
+            'frame_id': 'base_link',    # verify against your URDF
+            'rgb_topic': '/camera/camera/color/image_raw',
+            'camera_info_topic': '/camera/camera/color/camera_info',
+            'depth_topic': LaunchConfiguration('depth_topic'),
+            'subscribe_depth': 'true',
+            'approx_sync': 'true',
+            'visual_odometry': LaunchConfiguration('visual_odometry'),
+            'odom_topic': '/odom',
+            'use_sim_time': 'true',
+            'qos': '2',                 # best effort; also connects to reliable publishers
+            'args': rtabmap_args,
+            'rtabmap_viz': 'false',
+            'rviz': 'false',            # your base launch already starts RViz
+            'namespace': '',
+            'wait_for_transform': '0.5',  # Increase from default 0.2 to 0.5 seconds
+        }.items(),
+    )
 
     depth_to_cloud = Node(
         package='rtabmap_util',
