@@ -6,14 +6,14 @@
   <!-- ===================== Parameters ===================== -->
   <!-- Placeholder dimensions only — swap in real Lunabotics chassis/wheel
        geometry once the mechanical design is locked. -->
-  <xacro:property name="chassis_length" value="1.2"/>
+  <xacro:property name="chassis_length" value="0.60"/>
   <xacro:property name="chassis_width"  value="0.5"/>
   <xacro:property name="chassis_height" value="0.2"/>
-  <xacro:property name="chassis_mass"   value="1.0"/>
+  <xacro:property name="chassis_mass"   value="15.0"/>
 
-  <xacro:property name="wheel_radius" value="0.15"/>
-  <xacro:property name="wheel_width"  value="0.1"/>
-  <xacro:property name="wheel_mass"   value="0.5"/> <!-- update on real weight!! -->
+  <xacro:property name="wheel_radius" value="0.12"/>
+  <xacro:property name="wheel_width"  value="0.06"/>
+  <xacro:property name="wheel_mass"   value="1.5"/>
 
   <!-- Wheel centers set slightly outside the chassis footprint, at a height
        so the wheel radius reaches the ground when chassis origin sits at
@@ -264,7 +264,7 @@
   <!-- Joint-state publishing (so /joint_states is available) plus a
        DiffDrive system plugin so the wheels actually respond to velocity
        commands. 4-wheel skid-steer: two joints per side. -->
-  <xacro:property name="track_factor" value="3.5"/>
+  <xacro:property name="track_factor" value="1.0"/>
    <!-- set through this equation:  
    W_eff = W * (1 + L^2/W^2) -->
   <xacro:property name="wheel_separation_eff"
