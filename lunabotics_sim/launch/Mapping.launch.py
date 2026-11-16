@@ -46,13 +46,38 @@ def generate_launch_description():
         'use_sim_time': 'true',
         'qos': '2',
         'cfg': os.path.join(pkg_share, 'config', 'rtabmap.ini'),
-        'args': "--delete_db_on_start",                          
+        'args': '--delete_db_on_start ',                          
         'rtabmap_viz': 'true',
         'rviz': 'false',
         'namespace': '',
         'wait_for_transform': '0.5',
     }.items(),
-)
+    )
+
+    obstacles = Node(
+        package='rtabmap_util',
+        executable='obstacles_detection',
+        name='obstacles_detection',
+        output='screen',
+        parameters=[{
+            'frame_id': 'base_link',
+            'map_frame_id': 'map',
+            'use_sim_time': True,            # matches your rtabmap include
+            'qos': 2,                        # int here, not a string
+            'wait_for_transform': 0.5,
+            'Grid/RangeMax': '4.0',
+            'Grid/CellSize': '0.05',
+            'Grid/NormalsSegmentation': 'true',
+            'Grid/MaxGroundAngle': '45',
+            'Grid/MaxGroundHeight': '0.05',
+            'Grid/MaxObstacleHeight': '1.5',
+            'Grid/MinClusterSize': '20',
+            'Grid/FlatObstacleDetected': 'true',
+        }],
+        remappings=[
+            ('cloud', '/camera/camera/depth/color/points'),   # your PointCloud2 topic
+        ],
+    )
 
     depth_to_cloud = Node(
         package='rtabmap_util',
@@ -101,7 +126,7 @@ def generate_launch_description():
         output='screen',
     )
     # The bridge starts at 6 s, so wait for it and the camera topics
-    delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap, depth_to_cloud])
+    delayed_rtabmap = TimerAction(period=10.0, actions=[rtabmap, depth_to_cloud, obstacles])
     delayed_nav2 = TimerAction(period=12.0, actions=[nav2, rviz])
     delayed_startup = TimerAction(period=15.0, actions=[startup])
 

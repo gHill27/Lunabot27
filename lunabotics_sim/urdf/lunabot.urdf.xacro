@@ -217,7 +217,7 @@
     <parent link="chassis_link"/> <!-- changed this to be just on the chassis for simplicity-->
     <child link="camera_link"/>
     <!-- top of the mast, tilted downward by camera_tilt about Y -->
-    <origin xyz="-0.6 0 0.12" rpy="0 0 3.141592653589793"/>
+    <origin xyz="0.6 0 0.12" rpy="0 0 0"/>
     <!-- <origin xyz="0 0 ${mast_height/2 + camera_mount_height}" rpy="0 ${camera_tilt} 0"/> -->
   </joint>
 
