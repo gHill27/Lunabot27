@@ -239,30 +239,29 @@ global_costmap:
       robot_radius: 0.45 #TODO change to real dem
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "voxel_layer", "inflation_layer"] #removed obstacle layer as we get map from rtab
+      plugins: ["static_layer", "obstacle_static", "voxel_layer", "inflation_layer"] #removed obstacle layer as we get map from rtab
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
         map_topic: /map
+      obstacle_static:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: True
+        map_topic: /octomap_grid
+        map_subscribe_transient_local: True
+        subscribe_to_updates: False
+        use_maximum: True              # important
+        trinary_costmap: True      
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
         publish_voxel_map: True
         origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 32 # 32 * 0.05 = 1.6 m, covers your 1.5 m height band
+        z_resolution: 0.1
+        z_voxels: 16  
         max_obstacle_height: 1.5
         mark_threshold: 0
-        observation_sources: depth_obstacles depth_clear
-        depth_clear:
-          topic: /camera/depth_registered/points #uses the live data instead so it can update fast
-          data_type: PointCloud2
-          marking: false
-          clearing: true
-          min_obstacle_height: 0.05 #check later 
-          max_obstacle_height: 1.5
-          # raytrace_max_range: 5.0
-          obstacle_max_range: 2.8
+        observation_sources: depth_obstacles 
         depth_obstacles:
           topic: /obstacles
           data_type: PointCloud2
@@ -271,7 +270,7 @@ global_costmap:
           raytrace_max_range: 2.8 
           raytrace_min_range: 0.0
           min_obstacle_height: 0.05
-          max_obstacle_height: 2.0
+          max_obstacle_height: 1.5
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 2.0 # change based on ...

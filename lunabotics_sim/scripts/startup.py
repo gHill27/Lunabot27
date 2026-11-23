@@ -79,7 +79,7 @@ class Startup(Node):
 
 
     def timer_callback(self):
-        self.get_logger().info(f'current yaw is {self.current_yaw}')
+        # self.get_logger().info(f'current yaw is {self.current_yaw}')
         now = self.get_clock().now()
         if self.get_clock().now().nanoseconds == 0 or self.start_yaw is None:
             return

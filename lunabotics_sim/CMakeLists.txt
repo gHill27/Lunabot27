@@ -18,6 +18,7 @@ install(PROGRAMS
   scripts/OrbDetector.py
   scripts/Depth.py
   scripts/startup.py
+  scripts/lidar2pointcloud.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

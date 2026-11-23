@@ -45,7 +45,7 @@ def generate_launch_description():
         'odom_topic': '/odom',
         'use_sim_time': 'true',
         'qos': '2',
-        'cfg': os.path.join(pkg_share, 'config', 'rtabmap.ini'),
+        'cfg': os.path.join(pkg_share, 'config', 'rtab_params.ini'),
         'args': '--delete_db_on_start ',                          
         'rtabmap_viz': 'true',
         'rviz': 'false',
@@ -78,7 +78,6 @@ def generate_launch_description():
             ('cloud', '/camera/camera/depth/color/points'),   # your PointCloud2 topic
         ],
     )
-
     depth_to_cloud = Node(
         package='rtabmap_util',
         executable='point_cloud_xyz',
@@ -97,8 +96,6 @@ def generate_launch_description():
             ('cloud', '/camera/depth_registered/points')
         ]
     )
-
-
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(nav2_share, 'launch', 'navigation_launch.py')),
