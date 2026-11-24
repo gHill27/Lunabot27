@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ===================== RealSense RGB-D Camera ===================== -->
+  <xacro:macro name="realsense_camera" params="parent name:=camera *origin">
+   <link name="${name}_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.025 0.09 0.025"/>
+        </geometry>
+        <!-- Define material locally so it doesn't break if missing in main file -->
+        <material name="wheel_black">
+          <color rgba="0.1 0.1 0.1 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.025 0.09 0.025"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.072"/>
+        <!-- Expanded inertia formula so it doesn't rely on an external box_inertia macro -->
+        <inertia ixx="${(0.072/12) * (0.09*0.09 + 0.025*0.025)}" ixy="0.0" ixz="0.0"
+                 iyy="${(0.072/12) * (0.025*0.025 + 0.025*0.025)}" iyz="0.0"
+                 izz="${(0.072/12) * (0.025*0.025 + 0.09*0.09)}" />
+      </inertial>
+    </link>
+
+    <!-- The joint that dynamically attaches this camera to whatever parent you specify -->
+    <joint name="${parent}_to_${name}" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+      <!-- The *origin parameter gets inserted here -->
+      <xacro:insert_block name="origin"/>
+    </joint>
+
+    <!-- Optical frame: camera/ROS convention (Z-forward, X-right, Y-down) -->
+    <link name="${name}_optical_link"/>
+
+    <joint name="${name}_to_optical" type="fixed">
+      <parent link="${name}_link"/>
+      <child link="${name}_optical_link"/>
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+    </joint>
+
+    <!-- Gazebo sensor plugin -->
+    <gazebo reference="${name}_link">
+      <sensor name="${name}_depth_camera" type="rgbd_camera">
+        <gz_frame_id>${name}_optical_link</gz_frame_id>
+        <always_on>true</always_on>
+        <update_rate>30</update_rate>
+        <visualize>true</visualize>
+        <!-- Dynamic topic name based on the camera name -->
+        <topic>/${name}</topic>
+        <camera>
+          <optical_frame_id>${name}_optical_link</optical_frame_id>
+          <horizontal_fov>1.211</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>50</far>
+          </clip>
+          <depth_camera>
+            <clip>
+              <near>0.1</near>
+              <far>10.0</far>
+            </clip>
+          </depth_camera>
+        </camera>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

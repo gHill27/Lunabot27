@@ -14,7 +14,7 @@ def generate_launch_description():
     use_sim = LaunchConfiguration('use_sim')
     use_sim_arg = DeclareLaunchArgument(
         'use_sim',
-        default_value='false',
+        default_value='true',
         description='Set to true to launch Gazebo simulation instead of real hardware'
     )
     pkg_path = get_package_share_directory('lunabotics_sim')
@@ -87,19 +87,23 @@ def generate_launch_description():
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
             '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
-            # RealSense-style RGB-D camera, mounted top-middle of chassis
-            '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
-            '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
-            # '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # RealSense-style RGB-D camera
+            '/realsense_depth_camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/realsense_depth_camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
+            # '/realsense_depth_camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            '/realsense_depth_camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/orbbec_camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/orbbec_camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/orbbec_camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # 4. Camera Info (Gazebo -> ROS) - needed by RViz to project the image properly
+            '/orbbec_camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan'
         ],
         remappings=[
-            ('/camera/image', '/camera/camera/color/image_raw'),
-            ('/camera/camera_info', '/camera/camera/color/camera_info'),
-            # ('/camera/depth_image', '/camera/camera/depth/image_rect_raw'),
-            ('/camera/depth_image', '/camera/camera/depth/image_raw'),
+            ('/realsense_depth_camera/image', '/camera/camera/color/image_raw'),
+            ('/realsense/camera_info', '/camera/camera/color/camera_info'),
+            ('/realsense/depth_image', '/camera/camera/depth/image_raw'),
         ],
         output='screen',
         condition=IfCondition(use_sim)
