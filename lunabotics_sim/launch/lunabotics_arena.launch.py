@@ -102,8 +102,8 @@ def generate_launch_description():
         ],
         remappings=[
             ('/realsense_depth_camera/image', '/camera/camera/color/image_raw'),
-            ('/realsense/camera_info', '/camera/camera/color/camera_info'),
-            ('/realsense/depth_image', '/camera/camera/depth/image_raw'),
+            ('/realsense_depth_camera/camera_info', '/camera/camera/color/camera_info'),
+            ('/realsense_depth_camera/depth_image', '/camera/camera/depth/image_raw'),
         ],
         output='screen',
         condition=IfCondition(use_sim)

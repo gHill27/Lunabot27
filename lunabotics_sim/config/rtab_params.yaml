@@ -1,0 +1,109 @@
+/**:
+  ros__parameters:
+    # Enable SLAM & Mapping mode
+    Mem/IncrementalMemory: "true"
+    Mem/InitWMWithAllNodes: "false"
+
+    # Memory Management
+    # Max time (ms) allowed per update (at 1 Hz, 700ms is safe; 0 = unlimited)
+    Rtabmap/TimeThr: "0"
+
+    # Max nodes in Working Memory (0 = disabled; or set to e.g. 400 to hard-cap node count)
+    Rtabmap/MemoryThr: "0"
+
+    # HEAVY RAM USAGE ~500MB to ~1.2GB
+    Db/Sqlite3InMemory: "true"
+
+    # Reg/Force3DoF: "true"
+
+    # Motion & Registration
+    # 0 = 3D->3D (SVD, required for multi-camera without OpenGV), 1 = 3D->2D (PnP), 2 = 2D->2D
+    Vis/EstimationType: "0"
+
+    # Minimum 3D feature matches required to accept a loop closure
+    Vis/MinInliers: "20"
+
+    # Occupancy Grid / Costmap Generation
+    Grid/FromDepth: "true"
+    Grid/3D: "true"
+    Grid/RayTracing: "true"
+    Grid/CellSize: "0.05"
+
+    # 0 = laser scan, 1 = depth/point cloud, 2 = both
+    Grid/Sensor: "2"
+    Grid/RangeMax: "5.0"
+    Grid/MinObstacleHeight: "0.30"
+    Grid/NormalsSegmentation: "true"
+
+    # Floor detected by surface normals, handles slight slopes
+    Grid/MaxGroundAngle: "45"
+
+    # Points below this height count as floor
+    Grid/MaxGroundHeight: "0.05"
+
+    # Ignore anything above robot height
+    Grid/MaxObstacleHeight: "1.5"
+
+    # Filters noise specks
+    Grid/MinClusterSize: "20"
+
+    # Keeps low obstacles close to the floor
+    Grid/FlatObstacleDetected: "true"
+
+    # Visual Params
+    # ARUCO 5x5 1000
+    Marker/Dictionary: "7"
+
+    # Value <=0 means automatic marker length estimation using the depth image (real is 0.12)
+    Marker/Length: "0"
+    RGBD/MarkerDetection: "true"
+
+    # Default value 0.11 (higher makes loop closure stricter)
+    Rtabmap/LoopThr: "0.11"
+
+    # Extract up to 500 keypoints per frame (0 disables loop closure!)
+    Kp/MaxFeatures: "500"
+
+    # 6 = GFTT/BRIEF, 8 = ORB (fast and reliable for indoor/sim)
+    Kp/DetectorStrategy: "6"
+
+    # Must match Kp/DetectorStrategy
+    Vis/FeatureType: "6"
+
+    # Max features used for visual registration
+    Vis/MaxFeatures: "500"
+
+    # Max distance (m) for RANSAC inliers
+    Vis/InlierDistance: "0.1"
+
+    # Local / Spatial Proximity Loop Closure
+    # Detects loop closures when robot returns near past poses in odometry
+    RGBD/ProximityBySpace: "true"
+
+    # How many nodes back in the graph to check
+    RGBD/ProximityMaxGraphDepth: "50"
+
+    # Max neighbor nodes to compare against
+    RGBD/ProximityPathMaxNeighbors: "10"
+
+    # Refines odometry links using visual/ICP registration
+    RGBD/NeighborLinkRefining: "true"
+
+    # false = anchors map to initial origin (keeps /map frame stable for Nav2)
+    RGBD/OptimizeFromGraphEnd: "false"
+
+    # Rejects loop closures that would warp the graph by >3x standard error
+    RGBD/OptimizeMaxError: "3.0"
+
+    # 1 = g2o, 2 = GTSAM (robust graph optimizers)
+    Optimizer/Strategy: "1"
+
+    # Update Triggers (Prevents spamming identical nodes while stationary)
+    # Only add a graph node after rotating ~3 degrees (rad)
+    RGBD/AngularUpdate: "0.05"
+
+    # Only add a graph node after moving 10 cm (m)
+    RGBD/LinearUpdate: "0.10"
+
+    # Run loop closure detection at 1 Hz
+    Rtabmap/DetectionRate: "1.0"
