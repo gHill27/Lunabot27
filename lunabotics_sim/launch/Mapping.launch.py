@@ -77,6 +77,14 @@ def generate_launch_description():
         ],
     )
 
+    ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[os.path.join(pkg_share, 'config', 'ekf.yaml')],
+    )
+
     # RTAB-Map
     rtabmap_common_params = [
         os.path.join(pkg_share, 'config', 'rtab_params.yaml'),
@@ -208,10 +216,11 @@ def generate_launch_description():
         depth_topic,
         visual_odom,
         base_launch,
+        ekf_node,
         realsense_sync,
         orbbec_sync,
         multi_camera_sync,
-        delayed_rtabmap,
-        delayed_nav2,
-        delayed_startup
+        # delayed_rtabmap,
+        # delayed_nav2,
+        # delayed_startup
         ])

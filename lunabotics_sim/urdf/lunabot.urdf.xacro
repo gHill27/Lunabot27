@@ -152,7 +152,21 @@
   <xacro:astra name="orbbec_camera" parent="chassis_link">
     <origin xyz="-0.30 0.0 0.12" rpy="0 0 3.1415926535" />
   </xacro:astra>
+  
+  <!--====================== IMU =======================-->
+  <gazebo reference="chassis_link">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <topic>/imu</topic>
+      <gz_frame_id>chassis_link</gz_frame_id>
+    </sensor>
+  </gazebo>
 
+  <!-- Check this one below lowkey unverified-->
+  <gazebo>
+  <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+</gazebo>
 
   <!-- ===================== Wheels ===================== -->
    <!-- Front: steered -->
@@ -230,7 +244,7 @@
     </plugin> -->
 
     <!-- cheats and uses gazebo's real tracker of position for odom -->
-    <plugin filename="gz-sim-odometry-publisher-system" 
+    <!-- <plugin filename="gz-sim-odometry-publisher-system" 
           name="gz::sim::systems::OdometryPublisher">
     <odom_frame>odom</odom_frame>
     <robot_base_frame>base_link</robot_base_frame>
@@ -238,7 +252,7 @@
     <odom_topic>/odom</odom_topic>
     <tf_topic>/tf</tf_topic>
     <dimensions>2</dimensions>
-  </plugin>
+  </plugin> -->
   </gazebo>
 
     <xacro:macro name="wheel_friction" params="link">

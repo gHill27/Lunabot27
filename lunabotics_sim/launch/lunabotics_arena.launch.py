@@ -99,6 +99,7 @@ def generate_launch_description():
             # 4. Camera Info (Gazebo -> ROS) - needed by RViz to project the image properly
             '/orbbec_camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan'
+            '/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
         ],
         remappings=[
             ('/realsense_depth_camera/image', '/camera/camera/color/image_raw'),
